@@ -7,7 +7,7 @@ COPY scripts/wait-for-it.sh *.war dhis2-* /dhis2/
 COPY dhis.conf /dhis2/home
 COPY server.xml /usr/local/tomcat/conf/
 
-CHMOD +x /dhis2/dhis2-*
+RUN CHMOD 500 /dhis2/dhis2-*
 
 RUN apt-get update \
     && apt-get install -y curl netcat \
