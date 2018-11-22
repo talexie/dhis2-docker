@@ -13,8 +13,8 @@ RUN apt-get update \
 ARG version
 RUN if [ ! -f /dhis2/dhis.war ]; \
     then \
-        curl -L https://s3-eu-west-1.amazonaws.com/releases.dhis2.org/${version}/dhis.war -o /dhis2/dhis.war; \
+        curl -L -k http://s3-eu-west-1.amazonaws.com/releases.dhis2.org/${version}/dhis.war -o /dhis2/dhis.war; \
     fi; \
     rm -rf /usr/local/tomcat/webapps/* \
     && mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
-#CMD["catalina.sh run"]
+CMD ["catalina.sh run"]

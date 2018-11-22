@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#########################################################
+# postgres backup script v1.2
+# author: Alex Tumwesigye
+# licence: public domain 
+#
+# using some ideas from 
+# http://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
+#########################################################
+BACKUP_DIR=~/backups/
+REMOTE_BACKUP_DIR=/var/lib/dhis2/
+
+while getopts p:h: option
+  do
+    case "${option}" in
+      p) SSH_PORT=${OPTARG};;
+      h) DBHOST=${OPTARG};;
+  esac  
+done
+LOGINUSER=$LOGNAME
+REMOTE=$LOGINUSER@$DBHOST:$REMOTE_BACKUP_DIR
+    
+# sync to remote server
+rsync --exclude="temp*" --exclude="work" --exclude="tomcat.pid" --exclude=".ssh*" --exclude=".*history" --exclude=".oracle*" --exclude="*.xsd" --exclude="*.policy" --exclude="*providers.xml" --exclude="conf/Catalina*" --delete -avzqe 'ssh -p '${SSH_PORT} $REMOTE $BACKUP_DIR
+
+echo "Database has successfully finished backup job "
+
+
