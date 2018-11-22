@@ -3,11 +3,13 @@ EXPOSE 8080 8009
 
 RUN mkdir -p /dhis2/home
 ENV DHIS2_HOME /dhis2/home
-COPY scripts/wait-for-it.sh *.war /dhis2/
+COPY scripts/wait-for-it.sh *.war dhis2-* /dhis2/
 COPY dhis.conf /dhis2/home
 COPY server.xml /usr/local/tomcat/conf/
 
-RUN apt-get update \ 
+CHMOD +x /dhis2/dhis2-*
+
+RUN apt-get update \
     && apt-get install -y curl netcat \
     && rm -rf /var/lib/apt/lists/*
 ARG version
