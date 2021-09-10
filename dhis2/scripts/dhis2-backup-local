@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 #########################################################
 # postgres backup script v1.2
-# author: Bob Jolliffe
+# author: Alex Tumwesigye (Original work by Bob Jolliffe)
 # licence: public domain 
 #
 # using some ideas from 
 # http://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
 #########################################################
 
-BACKUP_DIR=~/backups/
-# REMOTE="xxxx@xxxxxx:./dhis"
-USER=$LOGNAME
-DBNAME=$LOGNAME
-# Keep Sunday's backup
-DAY_OF_WEEK_TO_KEEP=7
-WEEKS_TO_KEEP=6
-DAYS_TO_KEEP=7
+export BACKUP_DIR="${BACKUP_DIR:-'/dbbackups/'}"
+export USER="${USER:-'dhis'}"
+export DBNAME="${DBNAME:-'dhis'}"
+export DAY_OF_WEEK_TO_KEEP="${DAY_OF_WEEK_TO_KEEP:-7}"
+export WEEKS_TO_KEEP="${WEEKS_TO_KEEP:-6}"
+export DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"
+
 
 EXCLUDED="-T aggregated* -T analytics* -T completeness*"
 

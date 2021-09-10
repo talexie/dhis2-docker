@@ -1,9 +1,12 @@
-FROM postgres:10
+ARG version
+FROM postgis/postgis:${version}
 
 ENV POSTGRES_USER dhis
 ENV POSTGRES_PASSWORD dhis
 ENV POSTGRES_DB dhis
 
-RUN apt-get update \
-    && apt-get install -y postgresql-10-postgis-2.4 \
-    && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /dhis2/scripts
+COPY scripts/dhis2* /usr/bin/
+RUN chmod +x /usr/bin/dhis2*
+COPY scripts/set-schedule.sh /docker-entrypoint-initdb.d/30_set-schedule.sh
+VOLUME /dbbackups

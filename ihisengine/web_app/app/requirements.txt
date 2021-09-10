@@ -2,5 +2,5 @@ Flask>=1.0
 uwsgi>=2.0.17.1
 Flask-WTF >=0.14.2
 Flask-Material >=0.1.1
-zato-common>=2.0.7
-zato-client>=3.0.2
+zato-common>=3.1.1
+zato-client>=3.1.1

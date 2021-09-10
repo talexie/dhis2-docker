@@ -1,12 +1,12 @@
-FROM tomcat:9.0.52-jdk11-openjdk
+FROM tomcat:10.0.6-jdk11-openjdk
 EXPOSE 8080 8009
 
 RUN mkdir -p /dhis2/home
 RUN mkdir -p /dhis2/templates
 ENV DHIS2_HOME /dhis2/home
 COPY scripts/wait-for-it.sh scripts/setEnvParams.sh *.war scripts/dhis2-* /dhis2/
-COPY dhis.conf /dhis2/home
-COPY dhis.conf /dhis2/templates
+COPY dhis.conf /dhis2/home/
+COPY dhis.conf /dhis2/templates/
 COPY server.xml /usr/local/tomcat/conf/
 COPY setenv.sh /usr/local/tomcat/bin/
 
@@ -26,5 +26,7 @@ RUN if [ ! -f /dhis2/dhis.war ]; \
     rm -rf /usr/local/tomcat/webapps/* \
     && mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
 
+#RUN chmod 600 /dhis2/home/dhis.conf*
+#RUN chmod 600 /dhis2/templates/dhis.conf*
 ENTRYPOINT ["/dhis2/setEnvParams.sh"]
 CMD ["catalina.sh run"]
