@@ -7,33 +7,38 @@
 # using some ideas from 
 # http://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
 #########################################################
+set -e
+#export $(xargs -0 -a "/proc/1/environ")
 
-export BACKUP_DIR="${BACKUP_DIR:-'/dbbackups/'}"
-export USER="${USER:-'dhis'}"
-export DBNAME="${DBNAME:-'dhis'}"
-export DAY_OF_WEEK_TO_KEEP="${DAY_OF_WEEK_TO_KEEP:-7}"
-export WEEKS_TO_KEEP="${WEEKS_TO_KEEP:-6}"
-export DAYS_TO_KEEP="${DAYS_TO_KEEP:-7}"
+export $(grep -v '^#' /etc/profile.d/db_backup_env.sh | xargs -d '\n')
 
+export DB_BACKUP_DIR="${DB_BACKUP_DIR:-/dbbackups/}"
+export DB_USER="${DB_USER:-postgres}"
+export DB_NAME="${DB_NAME:-dhis}"
+export DB_DAY_OF_WEEK_TO_KEEP="${DB_DAY_OF_WEEK_TO_KEEP:-7}"
+export DB_WEEKS_TO_KEEP="${DB_WEEKS_TO_KEEP:-6}"
+export DB_DAYS_TO_KEEP="${DB_DAYS_TO_KEEP:-7}"
+
+#printenv | sed 's/^\(.*\)$/export \1/g' >> /etc/profile.d/db_backup_env.sh
 
 EXCLUDED="-T aggregated* -T analytics* -T completeness*"
 
 function perform_backups()
 {
   SUFFIX=$1
-  FINAL_BACKUP_DIR=$BACKUP_DIR/backup"`date +\%Y-\%m-\%d-\%H-\%M`$SUFFIX/"
+  FINAL_DB_BACKUP_DIR=${DB_BACKUP_DIR}/backup"`date +\%Y-\%m-\%d-\%H-\%M`$SUFFIX/"
   
-  if ! mkdir -p $FINAL_BACKUP_DIR; then
-        echo "`date` Cannot create backup directory in $FINAL_BACKUP_DIR. Go and fix it!"
+  if ! mkdir -p $FINAL_DB_BACKUP_DIR; then
+        echo "`date` Cannot create backup directory in $FINAL_DB_BACKUP_DIR. Go and fix it!"
         exit 1;
   fi;
 
-  if ! pg_dump -O -Fp $DBNAME $EXCLUDED | gzip > $FINAL_BACKUP_DIR"$DBNAME".sql.gz.in_progress; then
-      echo "`date` [!!ERROR!!] Failed to produce plain backup of database $DBNAME"
+  if ! pg_dump -U ${DB_USER} -O -Fp ${DB_NAME} $EXCLUDED | gzip > $FINAL_DB_BACKUP_DIR"${DB_NAME}".sql.gz.in_progress; then
+      echo "`date` [!!ERROR!!] Failed to produce plain backup of database $DB_NAME"
   else
-    mv $FINAL_BACKUP_DIR"$DBNAME".sql.gz.in_progress $FINAL_BACKUP_DIR"$DBNAME".sql.gz
+    mv $FINAL_DB_BACKUP_DIR"${DB_NAME}".sql.gz.in_progress $FINAL_DB_BACKUP_DIR"${DB_NAME}".sql.gz
     # sync to remote server
-    # rsync -avq $BACKUP_DIR $REMOTE
+    # rsync -avq $DB_BACKUP_DIR $REMOTE
   fi
 }
 
@@ -43,7 +48,7 @@ DAY_OF_MONTH=`date +%d`
 if [ $DAY_OF_MONTH = "01" ];
 then
 	# Delete all expired monthly directories
-	# find $BACKUP_DIR -maxdepth 1 -name "*-monthly" -exec rm -rf '{}' ';'
+	# find $DB_BACKUP_DIR -maxdepth 1 -name "*-monthly" -exec rm -rf '{}' ';'
  
 	perform_backups "-monthly"
  
@@ -52,12 +57,12 @@ fi
  
 # WEEKLY BACKUPS
 DAY_OF_WEEK=`date +%u` #1-7 (Monday-Sunday)
-EXPIRED_DAYS=`expr $((($WEEKS_TO_KEEP * 7) + 1))`
+EXPIRED_DAYS=`expr $(((${DB_WEEKS_TO_KEEP} * 7) + 1))`
  
-if [ $DAY_OF_WEEK = $DAY_OF_WEEK_TO_KEEP ];
+if [ ${DAY_OF_WEEK} = ${DB_DAY_OF_WEEK_TO_KEEP} ];
 then
 	# Delete all expired weekly directories
-	find $BACKUP_DIR -maxdepth 1 -mtime +$EXPIRED_DAYS -name "*-weekly" -exec rm -rf '{}' ';'
+	find ${DB_BACKUP_DIR} -maxdepth 1 -mtime +$EXPIRED_DAYS -name "*-weekly" -exec rm -rf '{}' ';'
  
 	perform_backups "-weekly"
  
@@ -65,7 +70,7 @@ then
 fi
 
 # Delete daily backups 7 days old or more
-find $BACKUP_DIR -maxdepth 1 -mtime +$DAYS_TO_KEEP -name "*-daily" -exec rm -rf '{}' ';'
+find ${DB_BACKUP_DIR} -maxdepth 1 -mtime +${DB_DAYS_TO_KEEP} -name "*-daily" -exec rm -rf '{}' ';'
  
 perform_backups "-daily"
 

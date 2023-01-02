@@ -30,3 +30,5 @@ export CATALINA_OPTS="$CATALINA_OPTS -server"
 export CATALINA_PID=$CATALINA_BASE/tomcat.pid
 export CATALINA_HOME=/usr/local/tomcat
 export DHIS2_HOME=/dhis2/home
+# Fix JAVA_OPTS vulnerability issue
+export JAVA_OPTS="$JAVA_OPTS -Dlog4j2.formatMsgNoLookups=true"
