@@ -8,12 +8,16 @@ export DHIS2_DB_PASS="${DHIS2_DB_PASS:-'dhis2'}"
 export DHIS2_DB_HOST="${DHIS2_DB_HOST:-'dhis2'}"
 export DHIS2_DB_PORT="${DHIS2_DB_PORT:-'5432'}"
 export DHIS2_DB_NAME="${DHIS2_DB_NAME:-'dhis2'}"
+
 #Configure REDIS server
 export DHIS2_REDIS_ENABLED="${DHIS2_REDIS_ENABLED:-'true'}"
 export DHIS2_REDIS_HOST="${DHIS2_REDIS_HOST:-'localhost'}"
 export DHIS2_REDIS_PASS="${DHIS2_REDIS_PASS:-'guest'}"
 export DHIS2_REDIS_PORT="${DHIS2_REDIS_PORT:-'6379'}"
 export DHIS2_REDIS_TTL="${DHIS2_REDIS_TTL:-'4'}"
+
+#Enable PAT
+export DHIS2_PAT_ENABLED="${DHIS2_PAT_ENABLED:-'on'}"
 
 #Configure Rabbit MQ server
 export DHIS2_MQ_MODE="${DHIS2_MQ_MODE:-'EMBEDDED'}"
