@@ -1,4 +1,4 @@
-FROM tomcat:9.0.68-jdk11
+FROM tomcat:9.0.70-jdk11
 EXPOSE 8080 8009
 
 RUN mkdir -p /dhis2/home
@@ -8,6 +8,7 @@ COPY scripts/wait-for-it.sh scripts/setEnvParams.sh *.war scripts/dhis2-* /dhis2
 COPY dhis.conf /dhis2/home
 COPY dhis.conf /dhis2/templates
 COPY server.xml /usr/local/tomcat/conf/
+COPY context.xml /usr/local/tomcat/conf/
 COPY setenv.sh /usr/local/tomcat/bin/
 
 RUN chmod 500 /dhis2/dhis2-*
