@@ -4,12 +4,12 @@ EXPOSE 8080 8009
 RUN mkdir -p /dhis2/home
 RUN mkdir -p /dhis2/templates
 ENV DHIS2_HOME /dhis2/home
-COPY scripts/wait-for-it.sh scripts/setEnvParams.sh *.war scripts/dhis2-* /dhis2/
-COPY dhis.conf /dhis2/home
-COPY dhis.conf /dhis2/templates
-COPY server.xml /usr/local/tomcat/conf/
-COPY context.xml /usr/local/tomcat/conf/
-COPY setenv.sh /usr/local/tomcat/bin/
+COPY dhis2/scripts/wait-for-it.sh dhis2/scripts/setEnvParams.sh *.war dhis2/scripts/dhis2-* /dhis2/
+COPY dhis2/dhis.conf /dhis2/home
+COPY dhis2/dhis.conf /dhis2/templates
+COPY dhis2/server.xml /usr/local/tomcat/conf/
+COPY dhis2/context.xml /usr/local/tomcat/conf/
+COPY dhis2/setenv.sh /usr/local/tomcat/bin/
 
 RUN chmod 500 /dhis2/dhis2-*
 RUN chmod +x /dhis2/setEnvParams.sh
