@@ -1,4 +1,4 @@
-FROM tomcat:9.0.70-jdk11
+FROM tomcat:9.0.75-jdk11
 EXPOSE 8080 8009
 
 RUN mkdir -p /dhis2/home
@@ -17,7 +17,7 @@ RUN chmod +x /usr/local/tomcat/bin/setenv.sh
 RUN apt-get update \
     && apt -y upgrade && apt-get install -y curl \
     && rm -rf /var/lib/apt/lists/*
-ARG version
+ARG version="2.38/dhis2-stable-2.38.3.1"
 RUN rm -rf /dhis2/dhis.war
 # version e.g 2.33/2.33.5
 RUN if [ ! -f /dhis2/dhis.war ]; \
