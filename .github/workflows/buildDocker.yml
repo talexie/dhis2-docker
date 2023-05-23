@@ -34,7 +34,7 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            version="2.38/dhis2-stable-2.38.3.1"
+            version=2.38/dhis2-stable-2.38.3.1
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.38.3.1-jdk11-t9
   build239:
@@ -61,7 +61,7 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            version="2.39/dhis2-stable-2.39.1.2"
+            version=2.39/dhis2-stable-2.39.1.2
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.39.1.2-jdk11-t9
   build240:
@@ -88,13 +88,6 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            version="40/dhis2-stable-40.0.0"
-            rm -rf /dhis2/dhis.war
-            if [ ! -f /dhis2/dhis.war ]; \
-            then \
-                curl -L -k https://releases.dhis2.org/${version}.war -o /dhis2/dhis.war; \
-            fi; 
-            rm -rf /usr/local/tomcat/webapps/* 
-            mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
+            version=40/dhis2-stable-40.0.0
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.40.0.0-jdk11-t9
