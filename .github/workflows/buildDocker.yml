@@ -89,5 +89,12 @@ jobs:
           no-cache: true
           build-args: |
             version="40/dhis2-stable-40.0.0"
+            rm -rf /dhis2/dhis.war
+            if [ ! -f /dhis2/dhis.war ]; \
+            then \
+                curl -L -k https://releases.dhis2.org/${version}.war -o /dhis2/dhis.war; \
+            fi; 
+            rm -rf /usr/local/tomcat/webapps/* 
+            mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.40.0.0-jdk11-t9
