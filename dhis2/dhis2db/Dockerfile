@@ -5,10 +5,10 @@ RUN apt-get update \
     && apt-get install -y cron \
     && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /dhis2/scripts
-COPY scripts/dhis2* /usr/bin/
+COPY dhis2/scripts/dhis2* /usr/bin/
 RUN chmod +x /usr/bin/dhis2*
 
-COPY scripts/set-schedule.sh  /usr/local/bin/set-schedule.sh
+COPY dhis2/scripts/set-schedule.sh  /usr/local/bin/set-schedule.sh
 RUN chmod +x /usr/local/bin/set-schedule.sh
 VOLUME /dbbackups
 
