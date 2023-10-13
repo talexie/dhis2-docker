@@ -6,7 +6,7 @@ on:
       - master
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
         postgis_version: ['3.4']
         
     name: Build PostgreSQL version ${{ matrix.postgres_version }}-${{ matrix.postgis_version }}
-    
+
     runs-on: ubuntu-22.04
 
     steps:
