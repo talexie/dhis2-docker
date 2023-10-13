@@ -34,9 +34,9 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            version=2.38/dhis2-stable-2.38.3.1
+            version=2.38/dhis2-stable-2.38.4.3
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.38.3.1-jdk11-t9
+            ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.38.4.3-jdk11-t9
   build239:
     runs-on: ubuntu-22.04
     steps:
@@ -61,9 +61,9 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            version=2.39/dhis2-stable-2.39.1.2
+            version=2.39/dhis2-stable-2.39.2.1
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.39.1.2-jdk11-t9
+            ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:2.39.2.1-jdk11-t9
   build240:
     runs-on: ubuntu-22.04
     steps:
