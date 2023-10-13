@@ -12,8 +12,8 @@ COPY dhis2/scripts/set-schedule.sh  /usr/local/bin/set-schedule.sh
 RUN chmod +x /usr/local/bin/set-schedule.sh
 VOLUME /dbbackups
 
-COPY dhis2/scripts/configure-pg.sql /docker-entrypoint-initdb.d/
-RUN chmod a+r /docker-entrypoint-initdb.d/configure-pg.sql
+COPY dhis2/scripts/configure-pg.sh /docker-entrypoint-initdb.d/
+RUN chmod a+r /docker-entrypoint-initdb.d/configure-pg.sh
 
 RUN adduser root crontab && adduser postgres crontab
 ENTRYPOINT ["/usr/local/bin/set-schedule.sh"]
