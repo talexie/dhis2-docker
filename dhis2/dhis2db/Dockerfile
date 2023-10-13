@@ -12,7 +12,7 @@ COPY scripts/set-schedule.sh  /usr/local/bin/set-schedule.sh
 RUN chmod +x /usr/local/bin/set-schedule.sh
 VOLUME /dbbackups
 
-COPY scripts/configure-pg.sql /docker-entrypoint-initdb.d/
+COPY dhis2/scripts/configure-pg.sql /docker-entrypoint-initdb.d/
 RUN chmod a+r /docker-entrypoint-initdb.d/configure-pg.sql
 
 RUN adduser root crontab && adduser postgres crontab
