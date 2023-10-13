@@ -19,7 +19,7 @@ jobs:
         
     name: Build DHIS2 version ${{ matrix.major_version }} - ${{ matrix.minor_version }}
 
-    if: ${{ contains(matrix.minor_version,matrix.major_version) }}
+    if: ${{ contains(${{ matrix.minor_version }},${{ matrix.major_version }}) }}
 
     runs-on: ubuntu-22.04
 
