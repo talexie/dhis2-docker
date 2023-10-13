@@ -11,11 +11,15 @@ concurrency:
 
 jobs:
   buildPGVersions:
-    runs-on: ubuntu-22.04
     strategy:
       matrix: 
         postgres_version: [13,14,15,16]
         postgis_version: ['3.4']
+        
+    name: Build PostgreSQL version ${{ matrix.postgres_version }}-${{ matrix.postgis_version }}
+    
+    runs-on: ubuntu-22.04
+
     steps:
       -
         name: Checkout
@@ -34,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./dhis2/dhis2app/Dockerfile
+          file: ./dhis2/dhis2db/Dockerfile
           push: true
           no-cache: true
           build-args: |
