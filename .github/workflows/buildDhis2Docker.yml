@@ -15,11 +15,14 @@ jobs:
       matrix: 
         minor_version: ['2.38.4.3','2.39.2.1','2.40.1.0']
         major_version: ['2.38','2.39','2.40']
-        tomcat_version: ['9.0.82']
+        tomcat_version: ['9.0.81']
         
     name: Build DHIS2 version ${{ matrix.major_version }} - ${{ matrix.minor_version }}
 
+    if: ${{ contains(matrix.minor_version,matrix.major_version) }}
+
     runs-on: ubuntu-22.04
+
     steps:
       -
         name: Checkout
