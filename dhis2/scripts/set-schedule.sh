@@ -2,9 +2,9 @@
 set -Eeo pipefail
 # TODO swap to -Eeuo pipefail above (after handling all potentially-unset variables)
 # Set locales
-export LANG="en_US.UTF-8" 
-export LC_ALL="en_US.UTF-8" 
-export LC_CTYPE="en_US.UTF-8"
+#export LANG="en_US.UTF-8" 
+#export LC_ALL="en_US.UTF-8" 
+#export LC_CTYPE="en_US.UTF-8"
 
 export CRON_SCHEDULE="${CRON_SCHEDULE:-'0   0   *   *   *'}"
 croncmd="/bin/bash -c '/usr/bin/dhis2-backup-local >> /dbbackups/backups.log 2>&1'"

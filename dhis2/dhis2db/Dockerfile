@@ -4,6 +4,8 @@ RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get install -y cron \
     && rm -rf /var/lib/apt/lists/*
+RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen && locale-gen
+
 RUN mkdir -p /dhis2/scripts
 COPY dhis2/scripts/dhis2* /usr/bin/
 RUN chmod +x /usr/bin/dhis2*
