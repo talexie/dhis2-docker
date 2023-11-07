@@ -18,7 +18,7 @@ RUN chmod 500 /dhis2/dhis2-*
 RUN chmod +x /dhis2/setEnvParams.sh
 RUN chmod +x /usr/local/tomcat/bin/setenv.sh
 RUN apt-get update \
-    && apt -y upgrade && apt-get install -y curl \
+    && apt upgrade -y && apt-get install -y curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN rm -rf /dhis2/dhis.war
