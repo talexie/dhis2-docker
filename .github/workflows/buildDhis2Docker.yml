@@ -46,7 +46,7 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            "dhis2_version=${{ matrix.major_version}}/dhis2-stable-${{ matrix.minor_version}}""
+            "dhis2_version=${{ matrix.major_version}}/dhis2-stable-${{ matrix.minor_version}}"
             tomcat_version=${{ matrix.tomcat_version }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:${{ matrix.minor_version}}-jdk11-t9
