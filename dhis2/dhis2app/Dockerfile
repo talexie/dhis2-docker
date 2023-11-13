@@ -1,4 +1,4 @@
-ARG version="2.38/dhis2-stable-2.38.3.1"
+ARG version="40/dhis2-stable-40.1.0"
 ARG tomcat_version="9.0.82"
 
 FROM tomcat:${tomcat_version}-jdk11
