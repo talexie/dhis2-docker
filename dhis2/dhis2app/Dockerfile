@@ -23,7 +23,7 @@ RUN apt-get update \
 
 RUN rm -rf /dhis2/dhis.war
 # version e.g 2.33/2.33.5
-RUN echo "Building version:${ dhis2_version }"
+RUN echo "Building version:${dhis2_version}"
 RUN if [ ! -f /dhis2/dhis.war ]; \
     then \
         curl -L -k https://releases.dhis2.org/${dhis2_version}.war -o /dhis2/dhis.war; \
