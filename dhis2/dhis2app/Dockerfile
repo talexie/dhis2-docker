@@ -1,4 +1,4 @@
-ARG version="40/dhis2-stable-40.1.0"
+ARG dhis2_version="40/dhis2-stable-40.1.0"
 ARG tomcat_version="9.0.82"
 
 FROM tomcat:${tomcat_version}-jdk11
@@ -25,7 +25,7 @@ RUN rm -rf /dhis2/dhis.war
 # version e.g 2.33/2.33.5
 RUN if [ ! -f /dhis2/dhis.war ]; \
     then \
-        curl -L -k https://releases.dhis2.org/${version}.war -o /dhis2/dhis.war; \
+        curl -L -k https://releases.dhis2.org/${dhis2_version}.war -o /dhis2/dhis.war; \
     fi; \
     rm -rf /usr/local/tomcat/webapps/* \
     && mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
