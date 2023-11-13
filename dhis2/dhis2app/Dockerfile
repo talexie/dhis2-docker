@@ -1,4 +1,5 @@
-ARG dhis2_version="40/dhis2-stable-40.1.0"
+ARG dhis2_minor_version="40.1.0"
+ARG dhis2_major_version="40"
 ARG tomcat_version="9.0.82"
 
 FROM tomcat:${tomcat_version}-jdk11
@@ -23,10 +24,10 @@ RUN apt-get update \
 
 RUN rm -rf /dhis2/dhis.war
 # version e.g 2.33/2.33.5
-RUN echo "Building version:${dhis2_version}"
+RUN echo "Building major version:${dhis2_major_version}, minor version:${dhis2_minor_version}"
 RUN if [ ! -f /dhis2/dhis.war ]; \
     then \
-        curl -L -k https://releases.dhis2.org/${dhis2_version}.war -o /dhis2/dhis.war; \
+        curl -L -k https://releases.dhis2.org/${dhis2_major_version}/dhis2-stable-${dhis2_minor_version}.war -o /dhis2/dhis.war; \
     fi; \
     rm -rf /usr/local/tomcat/webapps/* \
     && mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
