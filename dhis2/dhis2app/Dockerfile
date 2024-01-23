@@ -22,7 +22,7 @@ RUN chmod 500 /dhis2/dhis2-*
 RUN chmod +x /dhis2/setEnvParams.sh
 RUN chmod +x /usr/local/tomcat/bin/setenv.sh
 RUN apt-get update \
-    && apt upgrade -y && apt-get install -y curl \
+    && apt upgrade -y && apt-get install -y curl unzip\
     && rm -rf /var/lib/apt/lists/*
 
 RUN rm -rf /dhis2/dhis.war
@@ -30,9 +30,12 @@ RUN rm -rf /dhis2/dhis.war
 RUN echo "Building major version:${dhis2_major_version}, minor version:${dhis2_minor_version}"
 RUN if [ ! -f /dhis2/dhis.war ]; \
     then \
-        curl -L -k https://releases.dhis2.org/${dhis2_major_version}/dhis2-stable-${dhis2_minor_version}.war -o /dhis2/dhis.war; \
+        #curl -L -k https://releases.dhis2.org/${dhis2_major_version}/dhis2-stable-${dhis2_minor_version}.war -o /dhis2/dhis.war; \
+        curl -L -k https://github.com/talexie/dhis2-core/actions/runs/7628643980/artifacts/1189229636 -o /dhis2/dhis.war.zip \
+        unzip /dhis2/dhis.war.zip -d /dhis2 \
     fi; \
     rm -rf /usr/local/tomcat/webapps/* \
+    rm -rf /dhis2/dhis.war.zip \
     && mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
 
 ENTRYPOINT ["/dhis2/setEnvParams.sh"]
