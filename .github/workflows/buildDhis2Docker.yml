@@ -13,9 +13,9 @@ jobs:
   buildDhis2Versions:
     strategy:
       matrix: 
-        minor_version: ['2.38.6','2.39.4.1','40.3.0']
-        major_version: ['2.38','2.39','40']
-        tomcat_version: ['9.0.85']
+        minor_version: '2.39.5','40.3.2','41.0.0']
+        major_version: ['2.39','40','41']
+        tomcat_version: ['9.0.89']
         
     name: Build DHIS2 version ${{ matrix.major_version }} - ${{ matrix.minor_version }}
 
@@ -50,4 +50,4 @@ jobs:
             dhis2_minor_version=${{ matrix.minor_version}}
             tomcat_version=${{ matrix.tomcat_version }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:${{ matrix.minor_version}}-jdk11-t9
+            ${{ secrets.DOCKERHUB_USERNAME }}/dhis2:${{ matrix.minor_version}}-jdk17-t9

@@ -1,10 +1,10 @@
 # DHIS2 Docker file for ALKIP Platform
 
-ARG tomcat_version="9.0.85"
-FROM tomcat:${tomcat_version}-jdk11
+ARG tomcat_version="9.0.89"
+FROM tomcat:${tomcat_version}-jdk17
 
-ARG dhis2_minor_version="40.2.1"
-ARG dhis2_major_version="40"
+ARG dhis2_minor_version="41.0.0"
+ARG dhis2_major_version="41"
 
 EXPOSE 8080 8009
 
