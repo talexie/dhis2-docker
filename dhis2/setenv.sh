@@ -18,7 +18,7 @@ HEAP="${DHIS2_JVM_HEAP:-'4G'}"
 # venture below here only if you know what you are doing ....
 
 # sets basic memory size parameters
-export CATALINA_OPTS="-Xms$HEAP -Xmx$HEAP -XX:MaxPermSize=256m -Xss256m"
+export CATALINA_OPTS="-Xms$HEAP -Xmx$HEAP -Xss256m"
 
 # some best practice suggestions from https://gist.github.com/terrancesnyder/986029
 export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseParallelGC"
