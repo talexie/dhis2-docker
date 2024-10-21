@@ -16,4 +16,5 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     alter system set random_page_cost = 1.1;
     alter system set max_locks_per_transaction = 96;
     alter system set track_activity_query_size = 8192;
+    alter system set jit = 'off';
 EOSQL

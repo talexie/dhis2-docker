@@ -2,12 +2,20 @@
 
 set -e
 #set -x Use this for debugging
+# Set optimization settings
+
+ulimit -n 65535
+
+sysctl -w net.ipv4.tcp_tw_reuse=1
+sysctl -w net.core.somaxconn=65535
+sysctl -w net.core.netdev_max_backlog=65536
 
 export DHIS2_DB_USER="${DHIS2_DB_USER:-'dhis2'}"
 export DHIS2_DB_PASS="${DHIS2_DB_PASS:-'dhis2'}"
 export DHIS2_DB_HOST="${DHIS2_DB_HOST:-'dhis2'}"
 export DHIS2_DB_PORT="${DHIS2_DB_PORT:-'5432'}"
 export DHIS2_DB_NAME="${DHIS2_DB_NAME:-'dhis2'}"
+export DHIS2_DB_POOL_TYPE="${DHIS2_DB_POOL_TYPE:-'hikari'}"
 
 #Configure REDIS server
 export DHIS2_REDIS_ENABLED="${DHIS2_REDIS_ENABLED:-'true'}"

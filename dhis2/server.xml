@@ -66,9 +66,24 @@
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
     -->
-    <Connector port="8080" protocol="HTTP/1.1"
+    <Connector port="8080" 
+               protocol="HTTP/1.1"
                connectionTimeout="20000"
-               redirectPort="8443" relaxedQueryChars="|[]," URIEncoding="UTF-8" compression="on"/>
+               maxThreads="500"
+               minSpareThreads="50"
+               maxSpareThreads="100"
+               acceptCount="700"
+               keepAliveTimeout="5000"
+               maxConnections="10000"
+               redirectPort="8443" 
+               relaxedQueryChars="|[]," 
+               URIEncoding="UTF-8" 
+               compression="on"
+               compressionMinSize="2048"
+               noCompressionUserAgents="gozilla, traviata"
+               compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json"
+               protocol="org.apache.coyote.http11.Http11NioProtocol"
+               />
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
@@ -159,7 +174,7 @@
              Note: The pattern used is equivalent to using pattern="common" -->
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                prefix="localhost_access_log" suffix=".txt"
-               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
 
       </Host>
     </Engine>
