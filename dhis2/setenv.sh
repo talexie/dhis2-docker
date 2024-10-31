@@ -18,6 +18,7 @@ HEAP="${DHIS2_JVM_HEAP:-'4G'}"
 # venture below here only if you know what you are doing ....
 
 # sets basic memory size parameters
+# export CATALINA_OPTS="-Xmx$HEAP -Xms$HEAP -XX:SoftMaxHeapSize=3g -XX:+UseZGC - XX:+ZGenerational -XX:+UseLargePages -XX:+UseTransparentHugePages"
 export CATALINA_OPTS="-Xms$HEAP -Xmx$HEAP -Xss256m"
 
 # some best practice suggestions from https://gist.github.com/terrancesnyder/986029
