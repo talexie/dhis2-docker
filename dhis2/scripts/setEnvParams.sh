@@ -55,6 +55,3 @@ export DHIS2_MONITORING_USER="${DHIS2_MONITORING_USER:-'dhis'}"
 export DHIS2_MONITORING_PASS="${DHIS2_MONITORING_PASS:-'dhis'}"
 export DHIS2_MONITORING_PORT="${DHIS2_MONITORING_PORT:-'9090'}"
 export DHIS2_TIMEZONE="${DHIS2_TIMEZONE:-'Africa/Kampala'}"
-
-echo "${DHIS2_TIMEZONE}" | tee /etc/timezone
-dpkg-reconfigure --frontend noninteractive tzdata
