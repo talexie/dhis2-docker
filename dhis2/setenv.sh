@@ -21,7 +21,7 @@ HEAP="${DHIS2_JVM_HEAP:-'4G'}"
 export CATALINA_OPTS="-Xms$HEAP -Xmx$HEAP -Xss256m"
 
 # some best practice suggestions from https://gist.github.com/terrancesnyder/986029
-export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"
+#export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"
 export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseParallelGC"
 export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxGCPauseMillis=1500"
 export CATALINA_OPTS="$CATALINA_OPTS -XX:GCTimeRatio=9"
