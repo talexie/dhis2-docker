@@ -35,5 +35,4 @@ RUN if [ ! -f /dhis2/dhis.war ]; \
     rm -rf /usr/local/tomcat/webapps/* \
     && mv /dhis2/dhis.war /usr/local/tomcat/webapps/ROOT.war
 
-ENTRYPOINT ["/dhis2/setEnvParams.sh"]
-CMD ["catalina.sh run"]
+ENTRYPOINT ["bin/bash","-c","/dhis2/setEnvParams.sh && catalina.sh run"]
