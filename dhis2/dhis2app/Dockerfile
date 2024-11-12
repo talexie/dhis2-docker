@@ -30,6 +30,6 @@ RUN if [ ! -f /usr/local/tomcat/webapps/ROOT.war ]; \
     then \
         curl -L -k https://releases.dhis2.org/${dhis2_major_version}/dhis2-stable-${dhis2_minor_version}.war -o /usr/local/tomcat/webapps/ROOT.war; \
     fi; \
-    rm -rf /usr/local/tomcat/webapps/* 
+    rm -rf /usr/local/tomcat/webapps/ROOT
 
 ENTRYPOINT ["/bin/bash","-c","catalina.sh run && tail -f /"]
