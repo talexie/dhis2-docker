@@ -4,10 +4,10 @@ set -e
 #set -x Use this for debugging
 # Set optimization settings
 
-ulimit -n 65535
+#ulimit -n 65535
 
-sysctl -w net.ipv4.tcp_tw_reuse=1
-sysctl -w net.core.somaxconn=65535
+#sysctl -w net.ipv4.tcp_tw_reuse=1
+#sysctl -w net.core.somaxconn=65535
 #sysctl -w net.core.netdev_max_backlog=65536
 
 export DHIS2_DB_USER="${DHIS2_DB_USER:-'dhis2'}"

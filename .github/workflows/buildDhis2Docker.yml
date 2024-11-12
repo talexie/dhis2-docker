@@ -13,8 +13,8 @@ jobs:
   buildDhis2Versions:
     strategy:
       matrix: 
-        minor_version: ['39.7.0','40.5.0','41.1.0']
-        major_version: ['39','40','41']
+        minor_version: ['41.2.0']
+        major_version: ['41']
         tomcat_version: ['9.0.96']
         
     name: Build DHIS2 version ${{ matrix.major_version }} - ${{ matrix.minor_version }}
