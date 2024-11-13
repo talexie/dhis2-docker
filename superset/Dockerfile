@@ -17,9 +17,6 @@
 #
 ARG superset_version="4.0.2"
 FROM apache/superset:${superset_version}
-RUN apt-get update \
-    && apt upgrade -y \
-    && rm -rf /var/lib/apt/lists/*
 
 USER root
 COPY --chown=superset:superset --chmod=644 *.py /app/superset/db_engine_specs
@@ -27,4 +24,4 @@ COPY --chown=superset:superset --chmod=644 *.py /app/superset/db_engine_specs
 USER superset
 WORKDIR /app
 
-CMD ["/app/docker/docker-ci.sh"]
+CMD ["/usr/bin/run-server.sh"]

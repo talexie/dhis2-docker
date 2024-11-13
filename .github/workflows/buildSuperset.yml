@@ -13,7 +13,7 @@ jobs:
   buildSupersetVersions:
     strategy:
       matrix: 
-        major_version: ['4.0.2','4.0.2-websocket','4.0.2-dockerize'] 
+        major_version: ['4.0.2','4.0.2-websocket'] 
     name: Build Apache Superset version
 
     runs-on: ubuntu-22.04
