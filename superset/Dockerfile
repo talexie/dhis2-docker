@@ -19,9 +19,10 @@ ARG superset_version="4.0.2"
 FROM apache/superset:${superset_version}
 
 USER root
-COPY --chown=superset:superset --chmod=644 superset/dhis2.py /app/superset/db_engine_specs
+COPY --chown=superset:superset --chmod=644 superset/dhis2.py /app/superset/db_engine_specs/dhis2.py
+
+WORKDIR /app
 
 USER superset
-WORKDIR /app
 
 CMD ["/usr/bin/run-server.sh"]
