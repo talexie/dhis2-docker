@@ -60,16 +60,9 @@ class Dhis2ParametersSchema(Schema):
         metadata={"description": __("DHIS2 psername")},
         load_default="",
     )
-    password = fields.String(
-        allow_none=True,
-        metadata={"description": __("DHIS2 password")},
-        load_default="",
-    )
+
     database = fields.String(
         required=False, metadata={"description": __("DHIS2 virtual database")}
-    )
-    url = fields.String(
-        required=False, metadata={"description": __("DHIS2 url")}
     )
     query = fields.Dict(
         keys=fields.Str(),
@@ -81,9 +74,7 @@ class Dhis2ParametersSchema(Schema):
 class Dhis2ParametersType(TypedDict, total=False):
     access_token: str | None
     username: str | None
-    password: str | None
     database: str
-    url: str
     query: dict[str, Any]
 
 
@@ -127,17 +118,13 @@ class Dhis2ParametersMixin:
         encrypted_extra: dict[str, str] | None = None,
     ) -> str:
         """
-        Build SQLAlchemy URI for connecting to a DHIS2 instance.
-        If an access token is specified, return a URI with PAT token.
+        Build SQLAlchemy URI for connecting to a DuckDB database.
+        If an access token is specified, return a URI to connect to a MotherDuck database.
         """
         if parameters is None:
             parameters = {}
         query = parameters.get("query", {})
         database = parameters.get("database", ":memory:")
-        token = parameters.get("access_token")
-        username = parameters.get("username")
-        password = parameters.get("password")
-        url = parameters.get("url")
 
         return str(URL(drivername=cls.engine, database=database, query=query))
 
@@ -339,3 +326,26 @@ class Dhis2EngineSpec(Dhis2ParametersMixin,BaseEngineSpec):
         """
         # Do nothing and let update_impersonation_config take care of impersonation
         return url
+    
+    @classmethod
+    def get_table_names(
+        cls, database: Database, inspector: Inspector, schema: str | None
+    ) -> set[str]:
+        return set(inspector.get_table_names(schema))
+
+    @staticmethod
+    def get_extra_params(database: Database) -> dict[str, Any]:
+        """
+        Add a user agent to be used in the requests.
+        """
+        extra: dict[str, Any] = BaseEngineSpec.get_extra_params(database)
+        engine_params: dict[str, Any] = extra.setdefault("engine_params", {})
+        connect_args: dict[str, Any] = engine_params.setdefault("connect_args", {})
+        config: dict[str, Any] = connect_args.setdefault("config", {})
+        custom_user_agent = config.pop("custom_user_agent", "")
+        delim = " " if custom_user_agent else ""
+        user_agent = USER_AGENT.replace(" ", "-").lower()
+        user_agent = f"{user_agent}/{VERSION_STRING}{delim}{custom_user_agent}"
+        config.setdefault("custom_user_agent", user_agent)
+
+        return extra
