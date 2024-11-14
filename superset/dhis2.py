@@ -204,12 +204,12 @@ class Dhis2ParametersMixin:
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
 class Dhis2EngineSpec(Dhis2ParametersMixin,BaseEngineSpec):
-    engine = "dhis2"
+    engine = "duckdb"
     engine_name = "DHIS2 Analytics"
     default_driver = "duckdb_engine"
 
     sqlalchemy_uri_placeholder = (
-        "dhis2:///username:password@{database_name}?motherduck_token={SERVICE_TOKEN}"
+        "duckdb:///username:password@{database_name}?motherduck_token={SERVICE_TOKEN}"
     )
     _time_grain_expressions = {
         None: "{col}",
@@ -245,28 +245,6 @@ class Dhis2EngineSpec(Dhis2ParametersMixin,BaseEngineSpec):
             return f"""'{dttm.isoformat(sep=" ", timespec="microseconds")}'"""
         return None
     
-    @classmethod
-    def get_table_names(
-        cls, database: Database, inspector: Inspector, schema: str | None
-    ) -> set[str]:
-        return set(inspector.get_table_names(schema))
-
-    @staticmethod
-    def get_extra_params(database: Database) -> dict[str, Any]:
-        """
-        Add a user agent to be used in the requests.
-        """
-        extra: dict[str, Any] = BaseEngineSpec.get_extra_params(database)
-        engine_params: dict[str, Any] = extra.setdefault("engine_params", {})
-        connect_args: dict[str, Any] = engine_params.setdefault("connect_args", {})
-        config: dict[str, Any] = connect_args.setdefault("config", {})
-        custom_user_agent = config.pop("custom_user_agent", "")
-        delim = " " if custom_user_agent else ""
-        user_agent = USER_AGENT.replace(" ", "-").lower()
-        user_agent = f"{user_agent}/{VERSION_STRING}{delim}{custom_user_agent}"
-        config.setdefault("custom_user_agent", user_agent)
-
-        return extra
     
     @staticmethod
     def get_table_from_json(url: str, table_name: str) -> str:
