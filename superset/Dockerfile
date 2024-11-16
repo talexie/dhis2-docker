@@ -22,7 +22,7 @@ USER root
 COPY --chown=superset:superset --chmod=644 superset/dhis2.py /app/superset/db_engine_specs/dhis2.py
 COPY --chown=superset:superset --chmod=644 superset/jsonhttp_dialect.py /app/jsonhttp_dialect.py
 WORKDIR /app
-RUN python -m pip install -e /app/jsonhttp_dialect.py
+
 USER superset
 
 CMD ["/usr/bin/run-server.sh"]
