@@ -189,7 +189,7 @@ class Dhis2ApiParametersMixin:
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
-class Dhis2EngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
+class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
 
