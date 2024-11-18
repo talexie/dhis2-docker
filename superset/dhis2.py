@@ -243,6 +243,16 @@ class Dhis2EngineSpec(Dhis2ParametersMixin,BaseEngineSpec):
         :return: Name of the created table.
         """
         print(f"HTTP connection from { url }")
+        # Fetch JSON data
+        s = requests.Session()
+        #s.auth = auth
+        #response = s.get(url)
+        #response.raise_for_status()
+        #data = response.json()
+
+        # Convert to Pandas DataFrame
+        #import polars as pd
+        #df = pd.DataFrame(data)
         # Establish a connection to DuckDB
         conn = duckdb.connect(database=":memory:")  # or use a file-based database
 

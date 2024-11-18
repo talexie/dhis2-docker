@@ -49,7 +49,7 @@ DEFAULT_ACCESS_TOKEN_URL = (
 
 # schema for adding a database by providing parameters instead of the
 # full SQLAlchemy URI
-class Dhis2ParametersSchema(Schema):
+class Dhis2ApiParametersSchema(Schema):
     access_token = fields.String(
         allow_none=True,
         metadata={"description": __("DHIS2 PAT token")},
@@ -71,18 +71,18 @@ class Dhis2ParametersSchema(Schema):
     )
 
 
-class Dhis2ParametersType(TypedDict, total=False):
+class Dhis2ApiParametersType(TypedDict, total=False):
     access_token: str | None
     username: str | None
     database: str
     query: dict[str, Any]
 
 
-class Dhis2PropertiesType(TypedDict):
-    parameters: Dhis2ParametersType
+class Dhis2ApiPropertiesType(TypedDict):
+    parameters: Dhis2ApiParametersType
 
 
-class Dhis2ParametersMixin:
+class Dhis2ApiParametersMixin:
     """
     Mixin for configuring DB engine specs via a dictionary.
 
@@ -97,7 +97,7 @@ class Dhis2ParametersMixin:
     engine = "dhis2"
 
     # schema describing the parameters used to configure the DB
-    parameters_schema = Dhis2ParametersSchema()
+    parameters_schema = Dhis2ApiParametersSchema()
 
     # recommended driver name for the DB engine spec
     default_driver = ""
@@ -113,7 +113,7 @@ class Dhis2ParametersMixin:
     @classmethod
     def build_sqlalchemy_uri(  # pylint: disable=unused-argument
         cls,
-        parameters: Dhis2ParametersType,
+        parameters: Dhis2ApiParametersType,
         encrypted_extra: dict[str, str] | None = None,
     ) -> str:
         """
@@ -130,7 +130,7 @@ class Dhis2ParametersMixin:
     @classmethod
     def get_parameters_from_uri(  # pylint: disable=unused-argument
         cls, uri: str, encrypted_extra: dict[str, Any] | None = None
-    ) -> Dhis2ParametersType:
+    ) -> Dhis2ApiParametersType:
         url = make_url_safe(uri)
         query = {
             key: value
@@ -146,7 +146,7 @@ class Dhis2ParametersMixin:
 
     @classmethod
     def validate_parameters(
-        cls, properties: Dhis2PropertiesType
+        cls, properties: Dhis2ApiPropertiesType
     ) -> list[SupersetError]:
         """
         Validates any number of parameters, for progressive validation.
@@ -189,7 +189,7 @@ class Dhis2ParametersMixin:
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
-class Dhis2EngineSpec(Dhis2ParametersMixin,BaseEngineSpec):
+class Dhis2EngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
 
