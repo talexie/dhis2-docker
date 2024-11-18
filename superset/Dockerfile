@@ -20,7 +20,7 @@ FROM apache/superset:${superset_version}
 
 USER root
 COPY --chown=superset:superset --chmod=644 superset/dhis2.py /app/superset/db_engine_specs/dhis2.py
-COPY --chown=superset:superset --chmod=644 superset/jsonhttp_dialect.py /app/jsonhttp_dialect.py
+COPY --chown=superset:superset --chmod=644 superset/dhis2_api.py /app/superset/db_engine_specs/dhis2_api.py
 WORKDIR /app
 
 USER superset
