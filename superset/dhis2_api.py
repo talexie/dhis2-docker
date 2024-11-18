@@ -51,7 +51,7 @@ DEFAULT_ACCESS_TOKEN_URL = (
 # full SQLAlchemy URI
 class Dhis2ApiParametersSchema(Schema):
     access_token = fields.String(
-        allow_none=True,
+        allow_none=False,
         metadata={"description": __("DHIS2 PAT token")},
         load_default=DEFAULT_ACCESS_TOKEN_URL,
     )
@@ -100,7 +100,7 @@ class Dhis2ApiParametersMixin:
     parameters_schema = Dhis2ApiParametersSchema()
 
     # recommended driver name for the DB engine spec
-    default_driver = ""
+    default_driver = "duckdb_engine"
 
     # query parameter to enable encryption in the database connection
     # for Postgres this would be `{"sslmode": "verify-ca"}`, eg.
@@ -137,7 +137,7 @@ class Dhis2ApiParametersMixin:
             for (key, value) in url.query.items()
             if (key, value) not in cls.encryption_parameters.items()
         }
-        access_token = query.pop("motherduck_token", "")
+        access_token = query.pop("access_token", "")
         return {
             "access_token": access_token,
             "database": url.database,
