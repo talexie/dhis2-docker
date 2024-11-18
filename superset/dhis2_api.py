@@ -304,26 +304,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
                 http_session = requests.Session()
                 http_session.auth(username,url.password)
                 connect_args["http_session"] = http_session
-
-    @classmethod
-    def get_url_for_impersonation(
-        cls,
-        url: URL,
-        impersonate_user: bool,
-        username: str | None,
-        access_token: str | None,
-    ) -> URL:
-        """
-        Return a modified URL with the username set.
-
-        :param access_token: Personal access token for OAuth2
-        :param url: SQLAlchemy URL object
-        :param impersonate_user: Flag indicating if impersonation is enabled
-        :param username: Effective username
-        :param password: Effective password
-        """
-        # Do nothing and let update_impersonation_config take care of impersonation
-        return url
     
     @classmethod
     def get_table_names(
