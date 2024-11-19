@@ -253,6 +253,12 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             return table_name
         except Exception as e:
             raise Exception(f"Failed to load JSON data from {url} into DuckDB: {e}")
+        
+    @classmethod
+    def get_table_names(
+        cls, database: Database, inspector: Inspector, schema: str | None
+    ) -> set[str]:
+        return set(inspector.get_table_names(schema))
     
     @classmethod
     def get_sqla_table(cls, table_name: str, json_url: str) -> URL:
