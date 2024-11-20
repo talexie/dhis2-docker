@@ -100,7 +100,7 @@ class Dhis2ApiParametersMixin:
     parameters_schema = Dhis2ApiParametersSchema()
 
     # recommended driver name for the DB engine spec
-    default_driver = "duckdb_engine"
+    default_driver = "dhis2"
 
     # query parameter to enable encryption in the database connection
     # for Postgres this would be `{"sslmode": "verify-ca"}`, eg.
