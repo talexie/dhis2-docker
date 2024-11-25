@@ -240,7 +240,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         :param table_name: Name of the table to be created in DuckDB.
         :return: Name of the created table.
         """
-        print(f"HTTP connection from { url }")
+        print(f"DHIS2 API HTTP connection from { url } for table { table_name }")
         # Establish a connection to DuckDB
         conn = duckdb.connect(database=":memory:")  # or use a file-based database
 

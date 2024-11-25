@@ -13,7 +13,7 @@ jobs:
   buildSupersetVersions:
     strategy:
       matrix: 
-        major_version: ['4.0.2','4.0.2-websocket'] 
+        major_version: ['4.1.1','4.1.1-websocket'] 
     name: Build Apache Superset version
 
     runs-on: ubuntu-22.04
@@ -41,4 +41,4 @@ jobs:
           build-args: |
             superset_version=${{ matrix.major_version }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/superset:${{ matrix.major_version}}-5
+            ${{ secrets.DOCKERHUB_USERNAME }}/superset:${{ matrix.major_version}}-1
