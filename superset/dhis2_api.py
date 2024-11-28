@@ -237,13 +237,11 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         cursor: Any,
         query: str,
         database: Database,
-        q: Query,
         **kwargs: Any,
     ) -> None:
         print(f"KWARGS: { kwargs }")
         print(f"QP:::{query }")
         print(f"DB:{database}")
-        print(f"Q:####{q}")
         cursor.execute(query,**kwargs)   
     
     @staticmethod
