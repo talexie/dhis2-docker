@@ -190,7 +190,7 @@ class Dhis2ApiParametersMixin:
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
-class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
+class Dhis2ApiEngineSpec(BaseEngineSpec):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
 
@@ -239,9 +239,11 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         database: Database,
         **kwargs: Any,
     ) -> None:
+        print(f"cls:{ cls }")
+        print(f"Cursor:{ cursor }")
         print(f"KWARGS: { kwargs }")
         print(f"QP:::{query }")
-        cursor.execute(query,**kwargs)   
+        super().execute(cursor,query,database, **kwargs)   
     
     @staticmethod
     def get_table_from_json(url: str, table_name: str) -> str:
