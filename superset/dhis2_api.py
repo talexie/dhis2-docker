@@ -241,7 +241,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     ) -> None:
         print(f"KWARGS: { kwargs }")
         print(f"QP:::{query }")
-        print(f"DB:{database}")
         cursor.execute(query,**kwargs)   
     
     @staticmethod
@@ -342,3 +341,31 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         config.setdefault("custom_user_agent", user_agent)
 
         return extra
+    
+    @staticmethod
+    def get_filters_display(context: dict) -> dict:
+        """
+        Extracts applied filters from the query context and formats them by name.
+        """
+        # Extract filters from the query context
+        filters = context.get("extra", {}).get("filters", [])
+        
+        # Map filter names to their values
+        filter_display = {
+            filter_item["col"]: filter_item["val"] 
+            for filter_item in filters
+        }
+        print(f"context spec:{ context}")
+        return filter_display
+    
+    @staticmethod
+    def get_parameters(context: dict) -> dict:
+        """
+        Include the filters in the parameters for custom processing.
+        """
+        # Get standard parameters
+        parameters = super().get_parameters(context)
+        print(f"Super Params: { parameters }")
+        # Add filters display
+        parameters["applied_filters"] = Dhis2ApiEngineSpec.get_filters_display(context)
+        return parameters
