@@ -30,6 +30,7 @@ from sqlalchemy import types
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.engine.url import URL
 
+from superset.models.sql_lab import Query
 from superset.config import VERSION_STRING
 from superset.constants import TimeGrain, USER_AGENT
 from superset.databases.utils import make_url_safe
@@ -230,6 +231,20 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             return f"""'{dttm.isoformat(sep=" ", timespec="microseconds")}'"""
         return None
     
+    @classmethod
+    def execute(  # pylint: disable=unused-argument
+        cls,
+        cursor: Any,
+        query: str,
+        database: Database,
+        q: Query,
+        **kwargs: Any,
+    ) -> None:
+        print(f"KWARGS: { kwargs }")
+        print(f"QP:::{query }")
+        print(f"DB:{database}")
+        print(f"Q:####{q}")
+        cursor.execute(query,**kwargs)   
     
     @staticmethod
     def get_table_from_json(url: str, table_name: str) -> str:
@@ -311,11 +326,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
                 http_session.auth(username,url.password)
                 connect_args["http_session"] = http_session
     
-    @classmethod
-    def get_table_names(
-        cls, database: Database, inspector: Inspector, schema: str | None
-    ) -> set[str]:
-        return set(inspector.get_table_names(schema))
+
 
     @staticmethod
     def get_extra_params(database: Database) -> dict[str, Any]:
