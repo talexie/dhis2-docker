@@ -41,4 +41,4 @@ jobs:
           build-args: |
             superset_version=${{ matrix.major_version }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/superset:${{ matrix.major_version}}-5
+            ${{ secrets.DOCKERHUB_USERNAME }}/superset:${{ matrix.major_version}}-6

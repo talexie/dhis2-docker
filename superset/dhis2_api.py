@@ -30,6 +30,7 @@ from sqlalchemy import types
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.engine.url import URL
 
+from superset.sql_parse import ParsedQuery
 from superset.models.sql_lab import Query
 from superset.config import VERSION_STRING
 from superset.constants import TimeGrain, USER_AGENT
@@ -190,7 +191,7 @@ class Dhis2ApiParametersMixin:
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
-class Dhis2ApiEngineSpec(BaseEngineSpec):
+class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
 
@@ -360,14 +361,43 @@ class Dhis2ApiEngineSpec(BaseEngineSpec):
         print(f"context spec:{ context}")
         return filter_display
     
-    @staticmethod
-    def get_parameters(context: dict) -> dict:
+    @classmethod
+    def get_parameters(cls,context: dict) -> dict:
         """
         Include the filters in the parameters for custom processing.
         """
+        print(f"Called:{context}")
         # Get standard parameters
         parameters = super().get_parameters(context)
         print(f"Super Params: { parameters }")
         # Add filters display
-        parameters["applied_filters"] = Dhis2ApiEngineSpec.get_filters_display(context)
+        parameters["applied_filters"] = cls.get_filters_display(context)
         return parameters
+    
+    @classmethod
+    def set_or_update_query_limit(cls, sql: str, limit: int,**kwargs) -> str:
+        """
+        Create a query based on original query but with new limit clause
+
+        :param sql: SQL query
+        :param limit: New limit to insert/replace into query
+        :return: Query with new limit
+        """
+        parsed_q = cls.apply_limit_offset(sql, limit, **kwargs)
+        print(f"X1:{parsed_q}")
+        print(f"X2:{kwargs}")
+        parsed_query = ParsedQuery(sql, engine=cls.engine)
+        print(f"Limit Query:{parsed_query}")
+        return parsed_query.set_or_update_query_limit(limit)
+    
+    @classmethod
+    def apply_limit_offset(cls,sql, limit, **kwargs):
+        # Access filters from kwargs['query_context']
+        filters = kwargs.get('query_context', {}).get('filters', [])
+        # Modify SQL dynamically based on filters
+        return f"{sql} WHERE {cls.process_filters(filters)} LIMIT {limit}"
+
+    @staticmethod
+    def process_filters(filters):
+        # Convert frontend filters into SQL WHERE clauses
+        return " AND ".join(f"{filter['col']} = '{filter['val']}'" for filter in filters)
