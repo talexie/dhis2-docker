@@ -244,14 +244,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         # Access filters from kwargs['query_context']
         filters = kwargs.get('query_context', {}).get('filters', [])
         print(f"filter:{filters}")
-        # Modify SQL dynamically based on filters
-        parsed_q = f"{query} WHERE { cls.process_filters(filters)}"
-        print(f"X1:{parsed_q}")
-        parsed_query = ParsedQuery(query, engine=cls.engine)
-        print(f"Limit Query")
-        # Display the parsed query as a string
-        for statement in parsed_query:
-            print(str(statement))
             
         print("New SQLglot")
         parsed = sqlglot.parse_one(query)
