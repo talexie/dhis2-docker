@@ -244,6 +244,14 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         print(f"Cursor:{ cursor }")
         print(f"KWARGS: { kwargs }")
         print(f"QP:::{query }")
+        # Access filters from kwargs['query_context']
+        filters = kwargs.get('query_context', {}).get('filters', [])
+        # Modify SQL dynamically based on filters
+        parsed_q = f"{query} WHERE { cls.process_filters(filters)}"
+        print(f"X1:{parsed_q}")
+        print(f"X2:{kwargs}")
+        parsed_query = ParsedQuery(query, engine=cls.engine)
+        print(f"Limit Query:{parsed_query}")
         super().execute(cursor,query,database, **kwargs)   
     
     @staticmethod
@@ -361,8 +369,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         print(f"context spec:{ context}")
         return filter_display
     
-    @classmethod
-    def get_parameters(cls,context: dict) -> dict:
+    def get_parameters(self,context: dict) -> dict:
         """
         Include the filters in the parameters for custom processing.
         """
@@ -371,11 +378,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         parameters = super().get_parameters(context)
         print(f"Super Params: { parameters }")
         # Add filters display
-        parameters["applied_filters"] = cls.get_filters_display(context)
+        parameters["applied_filters"] = self.get_filters_display(context)
         return parameters
     
-    @classmethod
-    def set_or_update_query_limit(cls, sql: str, limit: int,**kwargs) -> str:
+    def set_or_update_query_limit(self, sql: str, limit: int,**kwargs) -> str:
         """
         Create a query based on original query but with new limit clause
 
@@ -383,21 +389,19 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         :param limit: New limit to insert/replace into query
         :return: Query with new limit
         """
-        parsed_q = cls.apply_limit_offset(sql, limit, **kwargs)
+        parsed_q = self.apply_limit_offset(sql, limit, **kwargs)
         print(f"X1:{parsed_q}")
         print(f"X2:{kwargs}")
-        parsed_query = ParsedQuery(sql, engine=cls.engine)
+        parsed_query = ParsedQuery(sql, engine=self.engine)
         print(f"Limit Query:{parsed_query}")
         return parsed_query.set_or_update_query_limit(limit)
     
-    @classmethod
-    def apply_limit_offset(cls,sql, limit, **kwargs):
+    def apply_limit_offset(self,sql, limit, **kwargs):
         # Access filters from kwargs['query_context']
         filters = kwargs.get('query_context', {}).get('filters', [])
         # Modify SQL dynamically based on filters
-        return f"{sql} WHERE {cls.process_filters(filters)} LIMIT {limit}"
+        return f"{sql} WHERE {self.process_filters(filters)} LIMIT {limit}"
 
-    @staticmethod
     def process_filters(filters):
         # Convert frontend filters into SQL WHERE clauses
         return " AND ".join(f"{filter['col']} = '{filter['val']}'" for filter in filters)
