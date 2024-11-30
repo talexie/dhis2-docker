@@ -37,7 +37,7 @@ from superset.constants import TimeGrain, USER_AGENT
 from superset.databases.utils import make_url_safe
 from superset.db_engine_specs.base import BaseEngineSpec
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
-import duckdb, requests
+import duckdb, requests, sqlglot
 
 if TYPE_CHECKING:
     # prevent circular imports
@@ -240,18 +240,39 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         database: Database,
         **kwargs: Any,
     ) -> None:
-        print(f"cls:{ cls }")
-        print(f"Cursor:{ cursor }")
-        print(f"KWARGS: { kwargs }")
         print(f"QP:::{query }")
         # Access filters from kwargs['query_context']
         filters = kwargs.get('query_context', {}).get('filters', [])
+        print(f"filter:{filters}")
         # Modify SQL dynamically based on filters
         parsed_q = f"{query} WHERE { cls.process_filters(filters)}"
         print(f"X1:{parsed_q}")
-        print(f"X2:{kwargs}")
         parsed_query = ParsedQuery(query, engine=cls.engine)
-        print(f"Limit Query:{parsed_query}")
+        print(f"Limit Query")
+        # Display the parsed query as a string
+        for statement in parsed_query:
+            print(str(statement))
+            
+        print("New SQLglot")
+        parsed = sqlglot.parse_one(query)
+
+        # Extract WHERE filters
+        where_clause = parsed.find("where")
+
+        # Extract filters as a string
+        filters_s = where_clause.sql() if where_clause else "No filters found"
+
+        # Display filters
+        print("FiltersSQL:", filters_s)
+        # Extract conditions as expressions
+        conditions = where_clause.args["this"] if where_clause else None
+
+        # Display individual conditions
+        if conditions:
+            for condition in conditions.flatten():  # Traverse subexpressions
+                print(f"COND:{condition}")
+                print("Condition:", condition.sql())
+                
         super().execute(cursor,query,database, **kwargs)   
     
     @staticmethod
