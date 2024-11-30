@@ -246,10 +246,11 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         print(f"filter:{filters}")
             
         print("New SQLglot")
-        parsed = sqlglot.parse_one(query)
-
+        parsed = sqlglot.parse_one(sql=query,read="duckdb")
+        print(f"parsed:{parsed}")
         # Extract WHERE filters
         where_clause = parsed.find("where")
+        print(f"where:{where_clause}")
 
         # Extract filters as a string
         filters_s = where_clause.sql() if where_clause else "No filters found"
