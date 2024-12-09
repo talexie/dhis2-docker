@@ -232,9 +232,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             return f"""'{dttm.isoformat(sep=" ", timespec="microseconds")}'"""
         return None
     
-    @classmethod
+    #@classmethod
     def execute(  # pylint: disable=unused-argument
-        cls,
+        self,
         cursor: Any,
         query: str,
         database: Database,
@@ -244,27 +244,12 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         # Access filters from kwargs['query_context']
         filters = kwargs.get('query_context', {}).get('filters', [])
         print(f"filter:{filters}")
-            
-        print("New SQLglot")
-        parsed = sqlglot.parse_one(sql=query,read="duckdb")
-        print(f"parsed:{parsed}")
-        # Extract WHERE filters
-        where_clause = parsed.find("where")
-        print(f"where:{where_clause}")
-
-        # Extract filters as a string
-        filters_s = where_clause.sql() if where_clause else "No filters found"
-
-        # Display filters
-        print("FiltersSQL:", filters_s)
-        # Extract conditions as expressions
-        conditions = where_clause.args["this"] if where_clause else None
-
-        # Display individual conditions
-        if conditions:
-            for condition in conditions.flatten():  # Traverse subexpressions
-                print(f"COND:{condition}")
-                print("Condition:", condition.sql())
+        
+        parsed = sqlglot.parse(sql=query,read="duckdb")
+        tables, filters = self.extract_tables_and_filters(parsed[0])
+        # Output results
+        print("Tables:", tables)
+        print("Filters:", filters)          
                 
         super().execute(cursor,query,database, **kwargs)   
     
@@ -411,11 +396,21 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         return parsed_query.set_or_update_query_limit(limit)
     
     def apply_limit_offset(self,sql, limit, **kwargs):
-        # Access filters from kwargs['query_context']
         filters = kwargs.get('query_context', {}).get('filters', [])
-        # Modify SQL dynamically based on filters
         return f"{sql} WHERE {self.process_filters(filters)} LIMIT {limit}"
 
     def process_filters(filters):
         # Convert frontend filters into SQL WHERE clauses
         return " AND ".join(f"{filter['col']} = '{filter['val']}'" for filter in filters)
+    
+    def extract_tables_and_filters(self,node):
+        tables = set()
+        filters = []
+
+        for subnode in node.walk():
+            if isinstance(subnode, sqlglot.expressions.Table):
+                tables.add(subnode.name)
+            elif isinstance(subnode, sqlglot.expressions.Where):
+                filters.append(subnode.this.sql())
+
+        return list(tables), filters
