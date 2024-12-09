@@ -232,9 +232,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             return f"""'{dttm.isoformat(sep=" ", timespec="microseconds")}'"""
         return None
     
-    #@classmethod
+    @classmethod
     def execute(  # pylint: disable=unused-argument
-        self,
+        cls,
         cursor: Any,
         query: str,
         database: Database,
@@ -246,7 +246,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         print(f"filter:{filters}")
         
         parsed = sqlglot.parse(sql=query,read="duckdb")
-        tables, filters = self.extract_tables_and_filters(parsed[0])
+        tables, filters = cls.extract_tables_and_filters(parsed[0])
         # Output results
         print("Tables:", tables)
         print("Filters:", filters)          
@@ -403,7 +403,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         # Convert frontend filters into SQL WHERE clauses
         return " AND ".join(f"{filter['col']} = '{filter['val']}'" for filter in filters)
     
-    def extract_tables_and_filters(self,node):
+    @classmethod
+    def extract_tables_and_filters(cls,node):
         tables = set()
         filters = []
 
