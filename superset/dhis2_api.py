@@ -246,6 +246,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
         url = make_url_safe(database.sqlalchemy_uri)
+        print(f"{url}")
+        print(f"{url.username}")
         pprint.pprint(vars(url))
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
