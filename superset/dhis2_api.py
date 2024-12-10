@@ -241,7 +241,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         database: Database,
         **kwargs: Any,
     ) -> None:
-        print(f"QP:::{query }")
+        import pprint
+        pprint.pprint(vars(database))
+        pprint.pprint(vars(cls))
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
         
@@ -249,7 +251,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
         analytics_dim = cls.create_analytics_dimension(filters)  
-        print(f"filter:{analytics_dim}")       
+        print(f"filter:{analytics_dim}") 
+              
                
         super().execute(cursor,query,database, **kwargs) 
           
@@ -327,7 +330,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         :param access_token: Personal access token for OAuth2
         :return: None
         """
-        print(f"Test:")
         url = make_url_safe(uri)
         backend_name = url.get_backend_name()
 
