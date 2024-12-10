@@ -38,6 +38,7 @@ from superset.databases.utils import make_url_safe
 from superset.db_engine_specs.base import BaseEngineSpec
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 import duckdb, requests, sqlglot
+from sqlglot.expressions import Expression, Identifier, Literal, In, And, EQ, Column
 
 if TYPE_CHECKING:
     # prevent circular imports
@@ -242,16 +243,26 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     ) -> None:
         print(f"QP:::{query }")
         # Access filters from kwargs['query_context']
-        filters = kwargs.get('query_context', {}).get('filters', [])
-        print(f"filter:{filters}")
+        #filters = kwargs.get('query_context', {}).get('filters', [])
+        
         
         parsed = sqlglot.parse(sql=query,read="duckdb")
-        tables, filters = cls.extract_tables_and_filters(parsed[0])
-        # Output results
-        print("Tables:", tables)
-        print("Filters:", filters)          
-                
-        super().execute(cursor,query,database, **kwargs)   
+        filters, tables = cls.extract_tables_and_filters(parsed[0])
+        analytics_dim = cls.create_analytics_dimension(filters)  
+        print(f"filter:{analytics_dim}")       
+               
+        super().execute(cursor,query,database, **kwargs) 
+          
+    @classmethod   
+    def create_analytics_dimension(cls,filters):
+        dimension = []
+        for f in filters:
+            for filter in f:
+                if filter['op'] == 'in':
+                    dimension.extend(filter['value'] )
+                else:
+                    pass
+        return f"dx:{ ';'.join(map(str, dimension)) }"
     
     @staticmethod
     def get_table_from_json(url: str, table_name: str) -> str:
@@ -316,6 +327,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         :param access_token: Personal access token for OAuth2
         :return: None
         """
+        print(f"Test:")
         url = make_url_safe(uri)
         backend_name = url.get_backend_name()
 
@@ -404,14 +416,69 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         return " AND ".join(f"{filter['col']} = '{filter['val']}'" for filter in filters)
     
     @classmethod
-    def extract_tables_and_filters(cls,node):
-        tables = set()
+    def extract_filter_values(cls,condition):
         filters = []
 
+        def get_key_value(expression):
+            key = None
+            value = ""
+            for exp in expression.iter_expressions():
+                if isinstance(exp, Column):
+                    key = exp.sql()
+                elif isinstance(exp, Literal):
+                    value = exp.this
+                else:
+                    pass
+            return key, value
+            
+        def extract_values(expression):
+            f = {}
+            if isinstance(expression, EQ):
+                key, value = get_key_value(expression)
+                f = { 'key':key, 'value': value,'op': 'eq'}
+            elif isinstance(expression, In):
+                values = [arg.this for arg in expression.expressions]
+                filters.append({ 'key': expression.this.sql(), 'value': values,'op': 'in'})
+            elif isinstance(expression, dict):
+                for key, value in expression.items():
+                    extract_values(value)
+            """
+            elif isinstance(expression, Expression):
+                for child in expression.args.values():
+                    print(f"{child}::")
+                    if isinstance(child, list):
+                        for item in child:
+                            extract_values(item)
+                    elif child:
+                        extract_values(child)
+            """
+            return f
+        
+        def traverse_ast(node):
+            if isinstance(node, Expression):
+                value = extract_values(node)
+                if value:
+                    filters.append(value)
+                for child in node.args.values():
+                    if isinstance(child, list):
+                        for item in child:
+                            traverse_ast(item)
+                    elif child:
+                        traverse_ast(child)
+
+        traverse_ast(condition)
+        return filters
+
+    @classmethod
+    def extract_tables_and_filters(cls,node):
+        filters = []
+        tables = set()
+        
         for subnode in node.walk():
             if isinstance(subnode, sqlglot.expressions.Table):
                 tables.add(subnode.name)
             elif isinstance(subnode, sqlglot.expressions.Where):
-                filters.append(subnode.this.sql())
+                for condition in subnode.iter_expressions():
+                    filters.append(cls.extract_filter_values(condition))
 
-        return list(tables), filters
+        return filters, tables
