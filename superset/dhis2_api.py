@@ -43,6 +43,7 @@ from requests.auth import HTTPBasicAuth
 from sqlglot.expressions import Expression, Identifier, Literal, In, And, EQ, Column
 from sqlalchemy_dhis2.connection import add_authorization
 from sqlalchemy_dhis2.exceptions import DatabaseHTTPError
+from sqlalchemy_dhis2.constants import _HEADER
 import polars as pd
 
 if TYPE_CHECKING:
@@ -262,7 +263,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         analytics_dim = cls.create_analytics_dimension(filters)  
 
         if analytics_dim is not None:
-            response = cls.session.get(url=f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME")
+            response = cls.session.get(url=f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME",headers=_HEADER,)
             #if response.status_code != 2:
             #    raise DatabaseHTTPError(response.text, response.status_code)
             #    # Convert to Pandas DataFrame
