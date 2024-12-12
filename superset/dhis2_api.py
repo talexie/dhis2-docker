@@ -38,7 +38,11 @@ from superset.databases.utils import make_url_safe
 from superset.db_engine_specs.base import BaseEngineSpec
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 import duckdb, requests, sqlglot
+from requests import Session, BasicAuth
 from sqlglot.expressions import Expression, Identifier, Literal, In, And, EQ, Column
+from sqlalchemy_dhis2.connection import add_authorization
+from sqlalchemy_dhis2.exceptions import DatabaseHTTPError
+import polars as pd
 
 if TYPE_CHECKING:
     # prevent circular imports
@@ -195,7 +199,8 @@ class Dhis2ApiParametersMixin:
 class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
-
+    session = Session()
+    
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
     )
@@ -246,17 +251,39 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
         url = make_url_safe(database.sqlalchemy_uri)
-        print(f"{url}")
-        print(f"{url.username}")
+        analytics_url = f"{url.get('host'):url.get('port',443)}"
+        token = BasicAuth(url.get('username'),url.get('password',443))
         pprint.pprint(vars(url))
+        conn = duckdb.connect(database=":memory:")
+        add_authorization(cls.session, None, None, token)
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
         analytics_dim = cls.create_analytics_dimension(filters)  
         print(f"filter:{analytics_dim}") 
-              
-               
-        super().execute(cursor,query,database, **kwargs) 
-          
+        if analytics_dim is not None:
+            response = cls.session.get(f"{ analytics_url }/analytics/rawData.json?dimension:{analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME")
+            if response.status_code != 200:
+                raise DatabaseHTTPError(response.text, response.status_code)
+                # Convert to Pandas DataFrame
+                
+            data = response.json()
+            
+            df = pd.dataFrame(cls.format_analytics_data(data))
+        
+            conn.register(f"analytics_temp", df)
+            conn.execute(f"DROP TABLE IF EXISTS analytics")
+            conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
+            conn.unregister(f"analytics_temp") 
+            super().execute(cursor,'select * from analytics',database, **kwargs)   
+        else:
+            super().execute(cursor,query,database, **kwargs) 
+    
+    @classmethod
+    def format_analytics_data(cls,data):
+        keys = [header["name"] for header in data["headers"]]
+        rows = data["rows"]
+        formatted_data = [dict(zip(keys, row)) for row in rows]
+        return formatted_data      
     @classmethod   
     def create_analytics_dimension(cls,filters):
         dimension = []
@@ -266,7 +293,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
                     dimension.extend(filter['value'] )
                 else:
                     pass
-        return f"dx:{ ';'.join(map(str, dimension)) }"
+        if not dimension:
+            return None
+        else:
+            return f"dx:{ ';'.join(map(str, dimension)) }"
     
     @staticmethod
     def get_table_from_json(url: str, table_name: str) -> str:
