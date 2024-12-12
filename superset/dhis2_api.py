@@ -255,7 +255,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         url = opts.translate_connect_args()
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password',443))
-        pprint.pprint(vars(url))
         conn = duckdb.connect(database=":memory:")
         add_authorization(cls.session, None, None, token)
         parsed = sqlglot.parse(sql=query,read="duckdb")
