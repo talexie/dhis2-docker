@@ -201,7 +201,7 @@ class Dhis2ApiParametersMixin:
 class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
-    session = Session()
+    #session = Session()
     
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
@@ -249,21 +249,21 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         **kwargs: Any,
     ) -> None:
         import pprint
-        
+        session = Session()
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
         opts = make_url_safe(database.sqlalchemy_uri)
         url = opts.translate_connect_args()
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
-        token = HTTPBasicAuth(url.get('username'),url.get('password',443))
+        token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
-        add_authorization(cls.session, None, None, token)
+        add_authorization(session=session, username=url.get('username'), password=url.get('password'))
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
         analytics_dim = cls.create_analytics_dimension(filters)  
 
         if analytics_dim is not None:
-            response = cls.session.get(url=f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME",headers=_HEADER,)
+            response = session.get(url=f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME",headers=_HEADER,)
             #if response.status_code != 2:
             #    raise DatabaseHTTPError(response.text, response.status_code)
             #    # Convert to Pandas DataFrame
