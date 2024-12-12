@@ -262,7 +262,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         analytics_dim = cls.create_analytics_dimension(filters)  
         print(f"filter:{analytics_dim}") 
         if analytics_dim is not None:
-            response = cls.session.get(f"{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension:{analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME")
+            response = cls.session.get(f"{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME")
             if response.status_code != 200:
                 raise DatabaseHTTPError(response.text, response.status_code)
                 # Convert to Pandas DataFrame
