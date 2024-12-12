@@ -267,7 +267,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             #if response.status_code != 2:
             #    raise DatabaseHTTPError(response.text, response.status_code)
             #    # Convert to Pandas DataFrame
-                
+            print(f"data1:{ response }") 
             data = response.json()
             print(f"data:{ data }")
             
