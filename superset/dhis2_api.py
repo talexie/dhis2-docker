@@ -251,7 +251,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
-        url = make_url_safe(database.sqlalchemy_uri)
+        opts = make_url_safe(database.sqlalchemy_uri)
+        url = opts.translate_connect_args()
         pprint.pprint(vars(url))
         print(f"{ type(url)}")
         analytics_url = f"{url.get('host'):url.get('port',443)}"
