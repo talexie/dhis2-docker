@@ -262,7 +262,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         analytics_dim = cls.create_analytics_dimension(filters)  
         print(f"filter:{analytics_dim}") 
         if analytics_dim is not None:
-            response = cls.session.get(f"{ analytics_url }/analytics/rawData.json?dimension:{analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME")
+            response = cls.session.get(f"{ analytics_url }/api/analytics/rawData.json?dimension:{analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME")
             if response.status_code != 200:
                 raise DatabaseHTTPError(response.text, response.status_code)
                 # Convert to Pandas DataFrame
@@ -284,13 +284,14 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         keys = [header["name"] for header in data["headers"]]
         rows = data["rows"]
         formatted_data = [dict(zip(keys, row)) for row in rows]
-        return formatted_data      
+        return formatted_data  
+        
     @classmethod   
     def create_analytics_dimension(cls,filters):
         dimension = []
         for f in filters:
             for filter in f:
-                if filter['op'] == 'in':
+                if filter['op'] == 'in' and filter['key'] in ['id']:
                     dimension.extend(filter['value'] )
                 else:
                     pass
