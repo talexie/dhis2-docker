@@ -253,7 +253,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         #filters = kwargs.get('query_context', {}).get('filters', [])
         opts = make_url_safe(database.sqlalchemy_uri)
         url = opts.translate_connect_args()
-        pprint.pprint(vars(url))
+        #pprint.pprint(vars(url))
+        print(f"{url}")
         print(f"{ type(url)}")
         analytics_url = f"{url.get('host'):url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password',443))
