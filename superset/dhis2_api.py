@@ -38,7 +38,8 @@ from superset.databases.utils import make_url_safe
 from superset.db_engine_specs.base import BaseEngineSpec
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 import duckdb, requests, sqlglot
-from requests import Session, BasicAuth
+from requests import Session
+from requests.auth import HTTPBasicAuth
 from sqlglot.expressions import Expression, Identifier, Literal, In, And, EQ, Column
 from sqlalchemy_dhis2.connection import add_authorization
 from sqlalchemy_dhis2.exceptions import DatabaseHTTPError
@@ -252,7 +253,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         #filters = kwargs.get('query_context', {}).get('filters', [])
         url = make_url_safe(database.sqlalchemy_uri)
         analytics_url = f"{url.get('host'):url.get('port',443)}"
-        token = BasicAuth(url.get('username'),url.get('password',443))
+        token = HTTPBasicAuth(url.get('username'),url.get('password',443))
         pprint.pprint(vars(url))
         conn = duckdb.connect(database=":memory:")
         add_authorization(cls.session, None, None, token)
