@@ -254,7 +254,14 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         if isinstance(sqla_type, (types.String, types.DateTime)):
             return f"""'{dttm.isoformat(sep=" ", timespec="microseconds")}'"""
         return None
-    
+    @classmethod
+    def get_analytics_uri(cls,url):
+        port = url.get('port')
+        
+        if  port is None or port == 443:
+            return f"{url.get('host')}"
+        else:
+            return f"{url.get('host')}:{ port }"
     @classmethod
     def execute(  # pylint: disable=unused-argument
         cls,
@@ -266,8 +273,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         session = Session()
         url = cls.get_parameters_from_uri(database.sqlalchemy_uri_decrypted)
         #print("P:",superset_util.decrypt_password(url.get('password')))
-        print("Opts:",kwargs)
-        analytics_url = f"{url.get('host')}:{url.get('port',443)}"
+        print("Opts:",url)
+        print("Port:",url.get('port',443))
+        print("P:",url.get('password'))
+        analytics_url = cls.get_analytics_uri(url)
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
         add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
