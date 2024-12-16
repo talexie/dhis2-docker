@@ -35,7 +35,7 @@ from superset.models.sql_lab import Query
 from superset.config import VERSION_STRING
 from superset.constants import TimeGrain, USER_AGENT
 from superset.databases.utils import make_url_safe
-from superset.db_engine_specs.base import BaseEngineSpec, BasicParametersType, BasicParametersMixin
+from superset.db_engine_specs.base import BaseEngineSpec, BasicParametersType, BasicParametersMixin, LimitMethod
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 import duckdb, requests, sqlglot
 from requests import Session
@@ -262,6 +262,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             return f"{url.get('host')}"
         else:
             return f"{url.get('host')}:{ port }"
+        
     @classmethod
     def execute(  # pylint: disable=unused-argument
         cls,
@@ -272,10 +273,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
     ) -> None:
         session = Session()
         url = cls.get_parameters_from_uri(database.sqlalchemy_uri_decrypted)
-        #print("P:",superset_util.decrypt_password(url.get('password')))
-        print("Opts:",url)
-        print("Port:",url.get('port',443))
-        print("P:",url.get('password'))
         analytics_url = cls.get_analytics_uri(url)
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
@@ -291,9 +288,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             #if response.status_code != 2:
             #    raise DatabaseHTTPError(response.text, response.status_code)
             #    # Convert to Pandas DataFrame
-            print("RRR",response.text) 
             data = response.json()
-            print(f"data:{ data }")
             
             df = pd.DataFrame(cls.format_analytics_data(data))
         
@@ -301,7 +296,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             conn.execute(f"DROP TABLE IF EXISTS analytics")
             conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
             conn.unregister(f"analytics_temp") 
-            super().execute(cursor,'select * from analytics',database, **kwargs)   
+            cls.execute(cursor,'select * from analytics',database, **kwargs)   
         else:
             super().execute(cursor,query,database, **kwargs) 
     
@@ -326,6 +321,47 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         else:
             return f"dx:{ ';'.join(map(str, dimension)) }"
     
+    @classmethod
+    def fetch_data(cls, cursor: Any, limit: int | None = None) -> list[tuple[Any, ...]]:
+        """
+
+        :param cursor: Cursor instance
+        :param limit: Maximum number of rows to be returned by the cursor
+        :return: Result of query
+        """
+        if cls.arraysize:
+            cursor.arraysize = cls.arraysize
+        try:
+            if cls.limit_method == LimitMethod.FETCH_MANY and limit:
+                return cursor.fetchmany(limit)
+            data = cursor.fetchall()
+            print("cusr:",data)
+            description = cursor.description or []
+            # Create a mapping between column name and a mutator function to normalize
+            # values with. The first two items in the description row are
+            # the column name and type.
+            column_mutators = {
+                row[0]: func
+                for row in description
+                if (
+                    func := cls.column_type_mutators.get(
+                        type(cls.get_sqla_column_type(cls.get_datatype(row[1])))
+                    )
+                )
+            }
+            if column_mutators:
+                indexes = {row[0]: idx for idx, row in enumerate(description)}
+                for row_idx, row in enumerate(data):
+                    new_row = list(row)
+                    for col, func in column_mutators.items():
+                        col_idx = indexes[col]
+                        new_row[col_idx] = func(row[col_idx])
+                    data[row_idx] = tuple(new_row)
+
+            return data
+        except Exception as ex:
+            raise cls.get_dbapi_mapped_exception(ex) from ex
+        
     @staticmethod
     def get_table_from_json(url: str, table_name: str) -> str:
         """
