@@ -257,17 +257,19 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
-        add_authorization(session=session, username=url.get('username'), password=url.get('password'))
+        add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
         analytics_dim = cls.create_analytics_dimension(filters)  
 
         if analytics_dim is not None:
-            response = session.get(url=f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME",headers=_HEADER,)
+            url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
+            print(url_endpoint)
+            response = session.get(url=url_endpoint,headers=_HEADER,)
             #if response.status_code != 2:
             #    raise DatabaseHTTPError(response.text, response.status_code)
             #    # Convert to Pandas DataFrame
-            print(response) 
+            print("RRR",response.text) 
             data = response.json()
             print(f"data:{ data }")
             
