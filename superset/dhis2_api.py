@@ -80,7 +80,7 @@ class Dhis2ApiParametersSchema(Schema):
     )
 
 
-class Dhis2ApiParametersType(TypedDict, total=False):
+class Dhis2ApiParametersType(BasicParametersType):
     access_token: str | None
     username: str | None
     database: str
@@ -91,7 +91,7 @@ class Dhis2ApiPropertiesType(TypedDict):
     parameters: Dhis2ApiParametersType
 
 
-class Dhis2ApiParametersMixin:
+class Dhis2ApiParametersMixin(BasicParametersMixin):
     """
     Mixin for configuring DB engine specs via a dictionary.
 
@@ -131,10 +131,17 @@ class Dhis2ApiParametersMixin:
         """
         if parameters is None:
             parameters = {}
-        query = parameters.get("query", {})
+        query = parameters.get("query", {}).copy()
         database = parameters.get("database", ":memory:")
+        if parameters.get("encryption"):
+            if not cls.encryption_parameters:
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    "Unable to build a URL with encryption enabled"
+                )
+            query.update(cls.encryption_parameters)
 
-        return str(URL(drivername=cls.engine, database=database, query=query))
+        return str(URL(drivername=cls.engine, database=database, query=query,username=parameters.get("username"),
+                password=parameters.get("password")))
 
     @classmethod
     def get_parameters_from_uri(  # pylint: disable=unused-argument
@@ -146,11 +153,19 @@ class Dhis2ApiParametersMixin:
             for (key, value) in url.query.items()
             if (key, value) not in cls.encryption_parameters.items()
         }
+        encryption = all(
+            item in url.query.items() for item in cls.encryption_parameters.items()
+        )
         access_token = query.pop("access_token", "")
         return {
+            "username": url.username,
+            "password": url.password,
+            "host": url.host,
+            "port": url.port,
             "access_token": access_token,
             "database": url.database,
             "query": query,
+            "encryption": encryption,
         }
 
     @classmethod
@@ -248,7 +263,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         database: Database,
         **kwargs: Any,
     ) -> None:
-        import pprint
+        from superset.utils import core as superset_util
         session = Session()
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
@@ -256,7 +271,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         url = opts.translate_connect_args()
         print("Url:",url)
         print("u:",url.get('username'))
-        print("P:",url.get('password'))
+        print("P:",superset_util.decrypt_password(url.get('password')))
+        print("ALL:",cls.get_parameters_from_uri(database.sqlalchemy_uri))
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
