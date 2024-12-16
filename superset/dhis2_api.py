@@ -254,6 +254,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         #filters = kwargs.get('query_context', {}).get('filters', [])
         opts = make_url_safe(database.sqlalchemy_uri)
         url = opts.translate_connect_args()
+        print("Url:",url)
+        print("u:",url.get('username'))
+        print("P:",url.get('password'))
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
