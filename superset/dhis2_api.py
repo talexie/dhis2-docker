@@ -35,7 +35,7 @@ from superset.models.sql_lab import Query
 from superset.config import VERSION_STRING
 from superset.constants import TimeGrain, USER_AGENT
 from superset.databases.utils import make_url_safe
-from superset.db_engine_specs.base import BaseEngineSpec
+from superset.db_engine_specs.base import BaseEngineSpec, BasicParametersType, BasicParametersMixin
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 import duckdb, requests, sqlglot
 from requests import Session
