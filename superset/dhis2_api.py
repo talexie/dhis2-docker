@@ -264,14 +264,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         **kwargs: Any,
     ) -> None:
         session = Session()
-        # Access filters from kwargs['query_context']
-        #filters = kwargs.get('query_context', {}).get('filters', [])
-        opts = make_url_safe(database.sqlalchemy_uri)
-        url = opts.translate_connect_args()
+        url = cls.get_parameters_from_uri(database.sqlalchemy_uri_decrypted)
         #print("P:",superset_util.decrypt_password(url.get('password')))
-        print("ALL:",cls.get_parameters_from_uri(database.sqlalchemy_uri))
-        print("Url:",cls.get_parameters_from_uri(database.sqlalchemy_uri_decrypted))
-        print("Opts:",opts)
+        print("Opts:",kwargs)
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
@@ -291,7 +286,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             data = response.json()
             print(f"data:{ data }")
             
-            df = pd.dataFrame(cls.format_analytics_data(data))
+            df = pd.DataFrame(cls.format_analytics_data(data))
         
             conn.register(f"analytics_temp", df)
             conn.execute(f"DROP TABLE IF EXISTS analytics")
