@@ -263,16 +263,15 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         database: Database,
         **kwargs: Any,
     ) -> None:
-        from superset.utils import core as superset_util
         session = Session()
         # Access filters from kwargs['query_context']
         #filters = kwargs.get('query_context', {}).get('filters', [])
         opts = make_url_safe(database.sqlalchemy_uri)
         url = opts.translate_connect_args()
-        print("Url:",url)
-        print("u:",url.get('username'))
-        print("P:",superset_util.decrypt_password(url.get('password')))
+        #print("P:",superset_util.decrypt_password(url.get('password')))
         print("ALL:",cls.get_parameters_from_uri(database.sqlalchemy_uri))
+        print("Url:",cls.get_parameters_from_uri(database.sqlalchemy_uri_decrypted))
+        print("Opts:",opts)
         analytics_url = f"{url.get('host')}:{url.get('port',443)}"
         token = HTTPBasicAuth(url.get('username'),url.get('password'))
         conn = duckdb.connect(database=":memory:")
