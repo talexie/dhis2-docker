@@ -42,6 +42,7 @@ from superset.utils.filters import get_dataset_access_filters
 from superset.views.base import BaseFilter
 from superset.models.helpers import ExploreMixin
 from superset.models.dashboard import Dashboard
+from superset.models.slice import Slice
 
 import duckdb, requests, sqlglot
 from requests import Session
@@ -299,11 +300,14 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         import pprint
         
         #print("FIL:",get_dataset_access_filters(database))
-        print(database.data)
+        #print(database.data)
         #print('6:',cls.get_query_str_extended(query))
-        print('6:',repr(request))
-        print("X1:",Dashboard.data)
-        print("X2:",Dashboard.charts)
+        print('6:',request.form_data)
+        ob = Dashboard()
+        print("X1:",ob.data)
+        print("X2:",ob.charts)
+        sl = Slice()
+        print("X3:",sl.form_data)
         
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
