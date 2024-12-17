@@ -304,11 +304,11 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         #print(database.data)
         #print('6:',cls.get_query_str_extended(query))
         print('6:',request.form.to_dict())
-        ob = Dashboard()
-        print("X1:",ob.data)
-        print("X2:",ob.charts)
-        sl = Slice()
-        print("X3:",sl.form_data)
+        #ob = Dashboard()
+        #print("X1:",ob.data)
+        #print("X2:",ob.charts)
+        #sl = Slice()
+        #print("X3:",sl.form_data)
         form_data = {}
         if slice_id := request.args.get("slice_id"):
             slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
