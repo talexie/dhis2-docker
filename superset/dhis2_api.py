@@ -53,6 +53,7 @@ from sqlalchemy_dhis2.connection import add_authorization
 from sqlalchemy_dhis2.exceptions import DatabaseHTTPError
 from sqlalchemy_dhis2.constants import _HEADER
 import polars as pd
+import json
 
 if TYPE_CHECKING:
     # prevent circular imports
@@ -310,14 +311,16 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         #sl = Slice()
         #print("X3:",sl.form_data)
         form_data = {}
-        if slice_id := request.args.get("slice_id"):
+        form_data_json = json.loads(request.args.get('form_data'))
+        slice_id = form_data_json.get('slice_id')
+        if slice_id := form_data_json.get('slice_id'):
             slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
             print("slc:",slc)
             if slc:
                 form_data = slc.form_data.copy()
 
         print("form_data:",form_data)
-        print("Args;",request.args)
+
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
