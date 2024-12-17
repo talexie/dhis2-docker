@@ -218,12 +218,9 @@ class Dhis2ApiParametersMixin(BasicParametersMixin):
         )
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
-class DashboardMixin(Dashboard):
-    
-    def get_charts(self):
-        print("X1:",self.data())
-        print("X2:",self.charts())
-class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin, DashboardMixin):
+
+
+class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
     #session = Session()
@@ -305,7 +302,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin, Da
         print(database.data)
         #print('6:',cls.get_query_str_extended(query))
         print('6:',repr(request))
-        print('61:',cls.get_charts())
+        print("X1:",Dashboard.data())
+        print("X2:",Dashboard.charts())
         
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
