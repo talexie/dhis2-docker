@@ -288,7 +288,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec, BaseFilter):
         print("3:",tables)
         import pprint
         pprint.pprint(database)
-        print("FIL:",get_dataset_access_filters(self.model))
+        print("FIL:",get_dataset_access_filters(cls.model))
+        print("Model:",cls.model)
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
