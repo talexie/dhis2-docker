@@ -216,10 +216,11 @@ class Dhis2ApiParametersMixin(BasicParametersMixin):
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
-class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec, BaseFilter):
+class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec, BaseFilter, ExploreMixin):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
     #session = Session()
+    q_filters = []
     
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
@@ -282,14 +283,21 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec, BaseFilter):
         add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
-        analytics_dim = cls.create_analytics_dimension(filters)  
+        analytics_dim = cls.create_analytics_dimension(filters) 
+        cls.q_filters.append({
+            't':tables,
+            'd': filters
+        }) 
         print("1:",query)
         print("2:",analytics_dim)
         print("3:",tables)
+        print('4:',cls.q_filters)
         import pprint
-        pprint.pprint(database)
-        print("FIL:",get_dataset_access_filters(cls.model))
+        
         print("Model:",cls.model)
+        print("FIL:",get_dataset_access_filters(database))
+        pprint.pprint(database.data())
+        print('7:',cls. get_sqla_query())
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
