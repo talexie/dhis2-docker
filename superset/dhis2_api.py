@@ -297,7 +297,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec, BaseFilter, Exp
         
         print("Model:",cls.model)
         #print("FIL:",get_dataset_access_filters(database))
-        pprint.pprint(database.data())
+        print(database.data)
         print('6:',cls.get_query_str_extended(query))
         print('7:',cls.get_sqla_query())
         if analytics_dim is not None and 'analytics' in tables:
