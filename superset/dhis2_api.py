@@ -37,6 +37,9 @@ from superset.constants import TimeGrain, USER_AGENT
 from superset.databases.utils import make_url_safe
 from superset.db_engine_specs.base import BaseEngineSpec, BasicParametersType, BasicParametersMixin, LimitMethod
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
+from superset.utils.filters import get_dataset_access_filters
+from superset.views.base import BaseFilter
+
 import duckdb, requests, sqlglot
 from requests import Session
 from requests.auth import HTTPBasicAuth
@@ -213,7 +216,7 @@ class Dhis2ApiParametersMixin(BasicParametersMixin):
         spec.components.schema(cls.__name__, schema=cls.parameters_schema)
         return spec.to_dict()["components"]["schemas"][cls.__name__]
 
-class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
+class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec, BaseFilter):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
     #session = Session()
@@ -285,6 +288,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
         print("3:",tables)
         import pprint
         pprint.pprint(database)
+        print("FIL:",get_dataset_access_filters(self.model))
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
