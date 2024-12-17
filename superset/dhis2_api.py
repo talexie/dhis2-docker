@@ -300,10 +300,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         print("3:",tables)
 
         form_data = {}
-        print(type(request.args))
-        form_data_json = request.args.get('form_data',{})
+
+        form_data_json = json.loads(request.args.get('form_data','{}'))
         print(type(form_data_json))
-        slice_id = form_data_json.get('slice_id')
+        #slice_id = form_data_json.get('slice_id')
         if slice_id := form_data_json.get('slice_id'):
             slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
             print("slc:",slc)
