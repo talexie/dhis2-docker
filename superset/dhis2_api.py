@@ -291,12 +291,14 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             data = response.json()
             
             df = pd.DataFrame(cls.format_analytics_data(data))
-        
-            conn.register(f"analytics_temp", df)
-            conn.execute(f"DROP TABLE IF EXISTS analytics")
-            conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
-            conn.unregister(f"analytics_temp") 
-            cls.execute(cursor,'select * from analytics',database, **kwargs)   
+            if df.is_empty():
+                cls.execute(cursor,'select * from analytics',database, **kwargs)
+            else:
+                conn.register(f"analytics_temp", df)
+                conn.execute(f"DROP TABLE IF EXISTS analytics")
+                conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
+                conn.unregister(f"analytics_temp") 
+                cls.execute(cursor,'select * from analytics',database, **kwargs)   
         else:
             super().execute(cursor,query,database, **kwargs) 
     
