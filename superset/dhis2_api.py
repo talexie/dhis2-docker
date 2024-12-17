@@ -22,6 +22,7 @@ from datetime import datetime
 from re import Pattern
 from typing import Any, TYPE_CHECKING, TypedDict
 
+from flask import request 
 from marshmallow import fields, Schema
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -295,10 +296,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         print('4:',cls.q_filters)
         import pprint
         
-        print("Model:",cls.model)
         #print("FIL:",get_dataset_access_filters(database))
         print(database.data)
         #print('6:',cls.get_query_str_extended(query))
+        print('6:',repr(request))
         print('7:',cls.get_sqla_query())
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
