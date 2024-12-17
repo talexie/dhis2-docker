@@ -298,20 +298,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         print("1:",query)
         print("2:",analytics_dim)
         print("3:",tables)
-        print('4:',cls.q_filters)
-        import pprint
-        
-        #print("FIL:",get_dataset_access_filters(database))
-        #print(database.data)
-        #print('6:',cls.get_query_str_extended(query))
-        print('6:',request.form.to_dict())
-        #ob = Dashboard()
-        #print("X1:",ob.data)
-        #print("X2:",ob.charts)
-        #sl = Slice()
-        #print("X3:",sl.form_data)
+
         form_data = {}
-        form_data_json = json.loads(request.args.get('form_data'))
+        form_data_json = json.loads(request.args.get('form_data',{}))
         slice_id = form_data_json.get('slice_id')
         if slice_id := form_data_json.get('slice_id'):
             slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
@@ -320,7 +309,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
                 form_data = slc.form_data.copy()
 
         print("form_data:",form_data)
-
+        print("filter:",form_data.get('adhoc_filters'))
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
@@ -378,7 +367,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             if cls.limit_method == LimitMethod.FETCH_MANY and limit:
                 return cursor.fetchmany(limit)
             data = cursor.fetchall()
-            print("cusr:",data)
+            #print("cusr:",data)
             description = cursor.description or []
             # Create a mapping between column name and a mutator function to normalize
             # values with. The first two items in the description row are
@@ -524,10 +513,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         """
         Include the filters in the parameters for custom processing.
         """
-        print(f"Called:{context}")
         # Get standard parameters
         parameters = super().get_parameters(context)
-        print(f"Super Params: { parameters }")
         # Add filters display
         parameters["applied_filters"] = self.get_filters_display(context)
         return parameters
@@ -541,10 +528,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         :return: Query with new limit
         """
         parsed_q = self.apply_limit_offset(sql, limit, **kwargs)
-        print(f"X1:{parsed_q}")
-        print(f"X2:{kwargs}")
         parsed_query = ParsedQuery(sql, engine=self.engine)
-        print(f"Limit Query:{parsed_query}")
         return parsed_query.set_or_update_query_limit(limit)
     
     def apply_limit_offset(self,sql, limit, **kwargs):
