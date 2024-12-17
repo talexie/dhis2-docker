@@ -301,11 +301,12 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec):
             super().execute(cursor,query,database, **kwargs) 
     
     @classmethod
-    def format_analytics_data(cls,data):
-        keys = [header["name"] for header in data["headers"]]
-        rows = data["rows"]
+    def format_analytics_data(cls,data=dict()):
+        headers = data.get('headers',[])
+        keys = [header["name"] for header in headers]
+        rows = data.get("rows",[])
         formatted_data = [dict(zip(keys, row)) for row in rows]
-        return formatted_data  
+        return formatted_data
         
     @classmethod   
     def create_analytics_dimension(cls,filters):
