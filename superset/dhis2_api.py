@@ -295,41 +295,44 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
         
         cls.get_table_filters(dim_set,tables)
-        print("2:",analytics_dim)
-        print("3:",tables)
-        print("4:",cls.q_filters)
-        if analytics_dim is not None and 'analytics' in tables:
-            print("1:",query)
+
+        if 'analytics' in tables:
+            print("4:",cls.q_filters)
+            print("2:",analytics_dim)
+            print("3:",tables)
             print("Request:",request.json)
-            
-            form_data = {}
-            form_data_json = request.json.get('form_data',{})
-            
-            if slice_id := form_data_json.get('slice_id'):
-                slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
-                if dashboard_id := form_data_json.get('dashboardId'):
-                    charts = DashboardDAO.get_charts_for_dashboard(dashboard_id)
-                    print("charts:",charts)
-                    result = [chart for chart in charts]
-                if slc:
-                    form_data = slc.form_data.copy()
-            url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
-            print(url_endpoint)
-            response = session.get(url=url_endpoint,headers=_HEADER,)
-            #if response.status_code != 2:
-            #    raise DatabaseHTTPError(response.text, response.status_code)
-            #    # Convert to Pandas DataFrame
-            data = response.json()
-            
-            df = pd.DataFrame(cls.format_analytics_data(data))
-            if df.is_empty():
-                cls.execute(cursor,'select * from analytics',database, **kwargs)
+            if analytics_dim is not None:
+                
+                form_data = {}
+                form_data_json = request.json.get('form_data',{})
+                
+                if slice_id := form_data_json.get('slice_id'):
+                    slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
+                    if dashboard_id := form_data_json.get('dashboardId'):
+                        charts = DashboardDAO.get_charts_for_dashboard(dashboard_id)
+                        print("charts:",charts)
+                        result = [chart for chart in charts]
+                    if slc:
+                        form_data = slc.form_data.copy()
+                url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
+                print(url_endpoint)
+                response = session.get(url=url_endpoint,headers=_HEADER,)
+                #if response.status_code != 2:
+                #    raise DatabaseHTTPError(response.text, response.status_code)
+                #    # Convert to Pandas DataFrame
+                data = response.json()
+                
+                df = pd.DataFrame(cls.format_analytics_data(data))
+                if df.is_empty():
+                    cls.execute(cursor,'select * from analytics',database, **kwargs)
+                else:
+                    conn.register(f"analytics_temp", df)
+                    conn.execute(f"DROP TABLE IF EXISTS analytics")
+                    conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
+                    conn.unregister(f"analytics_temp") 
+                    cls.execute(cursor,'select * from analytics',database, **kwargs)
             else:
-                conn.register(f"analytics_temp", df)
-                conn.execute(f"DROP TABLE IF EXISTS analytics")
-                conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
-                conn.unregister(f"analytics_temp") 
-                cls.execute(cursor,'select * from analytics',database, **kwargs)   
+                super().execute(cursor,query,database, **kwargs)      
         else:
             super().execute(cursor,query,database, **kwargs) 
     
@@ -347,7 +350,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             if cls.q_filters.get(f"{table}") is None:
                 cls.q_filters[f"{table}"] = set()
             else:
-                print(type(t),"::XX::",cls.q_filters.get(f"{table}"))
                 cls.q_filters[f"{table}"].update(t) 
             
     @classmethod   
