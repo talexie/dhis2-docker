@@ -229,7 +229,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     engine = "dhis2"
     engine_name = "DHIS2 API Analytics"
     #session = Session()
-    q_filters = []
+    q_filters = dict()
     _model: Optional[Dashboard] = None
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
@@ -292,14 +292,12 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
-        analytics_dim = cls.create_analytics_dimension(filters) 
-        cls.q_filters.append({
-            't':tables,
-            'd': filters
-        }) 
-
+        analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
+        
+        cls.get_table_filters(dim_set,tables)
         print("2:",analytics_dim)
         print("3:",tables)
+        print("4:",cls.q_filters)
         if analytics_dim is not None and 'analytics' in tables:
             print("1:",query)
             print("Request:",request.json)
@@ -342,20 +340,31 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         rows = data.get("rows",[])
         formatted_data = [dict(zip(keys, row)) for row in rows]
         return formatted_data
-        
+    
+    @classmethod
+    def get_table_filters(cls,t=set(), tables=set()):
+        for table in tables:
+            if not cls.q_filters[f"{table}"]:
+                cls.q_filters[f"{table}"] = set()
+            else:
+                print(type(t),"::XX::",cls.q_filters[f"{table}"])
+                cls.q_filters[f"{table}"].update(t) 
+            
     @classmethod   
     def create_analytics_dimension(cls,filters):
         dimension = []
+        dim_value = set()
         for f in filters:
             for filter in f:
                 if filter['op'] == 'in' and filter['key'] in ['id']:
                     dimension.extend(filter['value'] )
+                    dim_value.add(filter['value'])
                 else:
                     pass
         if not dimension:
-            return None
+            return None,dim_value
         else:
-            return f"dx:{ ';'.join(map(str, dimension)) }"
+            return f"dx:{ ';'.join(map(str, dimension)) }", dim_value
     
     @classmethod
     def fetch_data(cls, cursor: Any, limit: int | None = None) -> list[tuple[Any, ...]]:
