@@ -298,12 +298,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             'd': filters
         }) 
 
-
+        print("2:",analytics_dim)
+        print("3:",tables)
         if analytics_dim is not None and 'analytics' in tables:
             print("1:",query)
-            print("2:",analytics_dim)
-            print("3:",tables)
-
             print("Request:",request.json)
             
             form_data = {}
