@@ -230,6 +230,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     engine_name = "DHIS2 API Analytics"
     #session = Session()
     q_filters = dict()
+    queries = set()
     _model: Optional[Dashboard] = None
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
@@ -291,6 +292,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         conn = duckdb.connect(database=":memory:")
         add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
         parsed = sqlglot.parse(sql=query,read="duckdb")
+        cls.queries.add(parsed[0])
         filters, tables = cls.extract_tables_and_filters(parsed[0])
         analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
         
@@ -299,8 +301,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         if 'analytics' in tables:
             print("4:",cls.q_filters)
             print("2:",analytics_dim)
-            print("3:",tables)
+            print("3:",cls.queries)
             print("Request:",request.json)
+            analytics_dim = "dx:FQ2o8UBlcrS;FTRrcoaog83"
             if analytics_dim is not None:
                 
                 form_data = {}
@@ -311,6 +314,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
                     if dashboard_id := form_data_json.get('dashboardId'):
                         charts = DashboardDAO.get_charts_for_dashboard(dashboard_id)
                         print("charts:",charts)
+                        dashboard_query = db.session.query(Dashboard).filter(dashboard_id)
+                        print("charts2:",dashboard_query)
                         result = [chart for chart in charts]
                     if slc:
                         form_data = slc.form_data.copy()
