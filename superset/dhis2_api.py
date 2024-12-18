@@ -364,13 +364,17 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         dimension = []
         for key, value in filters.items():
             if key == 'organisationUnits':
-                dimension.append(f"dimension=ou:{';'.join(map(str,value))}") 
+                if not value:
+                   dimension.append(f"dimension=ou:USER_ORGUNIT") 
+                else:
+                    dimension.append(f"dimension=ou:{';'.join(map(str,value))}") 
             elif key == 'dataElements':
-                dimension.append(f"dimension=dx:{';'.join(map(str,value))}")  
+                if not value:
+                   dimension.append(f"dimension=dx:FQ2o8UBlcrS") 
+                else:
+                    dimension.append(f"dimension=dx:{';'.join(map(str,value))}")  
             else:
                 pass
-        if not dimension:
-            return f"dimension=ou:USER_ORGUNIT"
         return f"{'&'.join(map(str, dimension))}"
     
     @classmethod   
