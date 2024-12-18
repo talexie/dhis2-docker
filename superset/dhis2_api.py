@@ -344,7 +344,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     @classmethod
     def get_table_filters(cls,t=set(), tables=set()):
         for table in tables:
-            if cls.q_filters.get(f"{table}"):
+            if cls.q_filters.get(f"{table}") is None:
                 cls.q_filters[f"{table}"] = set()
             else:
                 print(type(t),"::XX::",cls.q_filters.get(f"{table}"))
