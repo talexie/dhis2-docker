@@ -294,16 +294,17 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
         parsed = sqlglot.parse(sql=query,read="duckdb")
         filters, tables = cls.extract_tables_and_filters(parsed[0])
-        analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
+        #analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
         
-        cls.get_table_filters(dim_set,tables)
+        #cls.get_table_filters(dim_set,tables)
 
         if 'analytics' in tables:
-            print("4:",cls.q_filters)
+            #print("4:",cls.q_filters)
+            analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
             print("2:",cls.q)
-            print("3:",cls.queries)
-            print("Request:",request.json)
-            analytics_dim = "dx:FQ2o8UBlcrS;FTRrcoaog83"
+            print("3:",analytics_dim)
+            #print("Request:",request.json)
+            #analytics_dim = "dx:FQ2o8UBlcrS;FTRrcoaog83"
             if analytics_dim is not None:
                 
                 form_data = {}
@@ -335,7 +336,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
                     conn.execute(f"DROP TABLE IF EXISTS analytics")
                     conn.execute(f"CREATE TABLE analytics AS SELECT * FROM analytics_temp")
                     conn.unregister(f"analytics_temp") 
-                    cls.execute(cursor,'select * from analytics',database, **kwargs)
+                    return cls.execute(cursor,'select * from analytics',database, **kwargs)
+                    
             else:
                 super().execute(cursor,query,database, **kwargs)      
         else:
