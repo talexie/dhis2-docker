@@ -297,31 +297,26 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             't':tables,
             'd': filters
         }) 
-        print("1:",query)
-        print("2:",analytics_dim)
-        print("3:",tables)
 
-        print("Request:",request.json)
-        
-        form_data = {}
 
-        form_data_json = json.loads(request.args.get('form_data','{}'))
-        #slice_id = form_data_json.get('slice_id')
-        if slice_id := form_data_json.get('slice_id'):
-            slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
-            print("slc:",slc)
-            charts = DashboardDAO.get_charts_for_dashboard(1)
-            print("charts:",charts)
-            result = [chart for chart in charts]
-            
-            if slc:
-                form_data = slc.form_data.copy()
-
-        print("form_data:",form_data)
-        print("filter:",form_data.get('adhoc_filters'),"FFF:::",form_data.get('filters'))
-        
-        print("XXXX:::",cls._model.json_metadata)
         if analytics_dim is not None and 'analytics' in tables:
+            print("1:",query)
+            print("2:",analytics_dim)
+            print("3:",tables)
+
+            print("Request:",request.json)
+            
+            form_data = {}
+            form_data_json = request.json.get('form_data',{})
+            
+            if slice_id := form_data_json.get('slice_id'):
+                slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
+                if dashboard_id := form_data_json.get('dashboardId'):
+                    charts = DashboardDAO.get_charts_for_dashboard(dashboard_id)
+                    print("charts:",charts)
+                    result = [chart for chart in charts]
+                if slc:
+                    form_data = slc.form_data.copy()
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
             response = session.get(url=url_endpoint,headers=_HEADER,)
