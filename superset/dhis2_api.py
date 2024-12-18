@@ -292,7 +292,6 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         conn = duckdb.connect(database=":memory:")
         add_authorization(session=session, username=url.get('username'), password=url.get('password'),token=None)
         parsed = sqlglot.parse(sql=query,read="duckdb")
-        cls.queries.add(parsed[0])
         filters, tables = cls.extract_tables_and_filters(parsed[0])
         analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
         
@@ -621,6 +620,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         for subnode in node.walk():
             if isinstance(subnode, sqlglot.expressions.Table):
                 tables.add(subnode.name)
+                cls.queries.add(subnode.name)
             elif isinstance(subnode, sqlglot.expressions.Where):
                 for condition in subnode.iter_expressions():
                     filters.append(cls.extract_filter_values(condition))
