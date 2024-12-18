@@ -300,7 +300,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
 
         if 'analytics' in tables:
             #print("4:",cls.q_filters)
-            analytics_dim, dim_set = cls.create_analytics_dimension(filters) 
+            analytics_dim = cls.get_dhis2_dimension(cls.q) 
             print("2:",cls.q)
             print("3:",analytics_dim)
             #print("Request:",request.json)
@@ -320,7 +320,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
                         result = [chart for chart in charts]
                     if slc:
                         form_data = slc.form_data.copy()
-                url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
+                url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?{analytics_dim}&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
                 print(url_endpoint)
                 response = session.get(url=url_endpoint,headers=_HEADER,)
                 #if response.status_code != 2:
@@ -358,7 +358,21 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
                 cls.q_filters[f"{table}"] = set()
             else:
                 cls.q_filters[f"{table}"].update(t) 
-            
+    
+    @classmethod
+    def get_dhis2_dimension(cls,filters):
+        dimension = []
+        for f in filters:
+            if f.get('organisationUnits') is not None:
+                dimension.append(f"dimension=ou:{';'.join(map(str,f.get('organisationUnits')))}") 
+            elif f.get('dataElements') is not None:
+                dimension.append(f"dimension=dx:{';'.join(map(str,f.get('dataElements')))}")  
+            else:
+                pass
+        if not dimension:
+            return f"dimension=ou:USER_ORGUNIT"
+        return f"{'&'.join(map(str, dimension))}"
+    
     @classmethod   
     def create_analytics_dimension(cls,filters):
         dimension = []
