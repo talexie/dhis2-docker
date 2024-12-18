@@ -300,8 +300,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
 
         if 'analytics' in tables:
             #print("4:",cls.q_filters)
-            analytics_dim = cls.get_dhis2_dimension(cls.q) 
             print("2:",cls.q)
+            analytics_dim = cls.get_dhis2_dimension(cls.q) 
             print("3:",analytics_dim)
             #print("Request:",request.json)
             #analytics_dim = "dx:FQ2o8UBlcrS;FTRrcoaog83"
@@ -362,11 +362,11 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     @classmethod
     def get_dhis2_dimension(cls,filters):
         dimension = []
-        for f in filters:
-            if f.get('organisationUnits') is not None:
-                dimension.append(f"dimension=ou:{';'.join(map(str,f.get('organisationUnits')))}") 
-            elif f.get('dataElements') is not None:
-                dimension.append(f"dimension=dx:{';'.join(map(str,f.get('dataElements')))}")  
+        for key, value in filters.items():
+            if key == 'organisationUnits':
+                dimension.append(f"dimension=ou:{';'.join(map(str,value))}") 
+            elif key == 'dataElements':
+                dimension.append(f"dimension=dx:{';'.join(map(str,value))}")  
             else:
                 pass
         if not dimension:
