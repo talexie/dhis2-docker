@@ -20,7 +20,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from re import Pattern
-from typing import Any, TYPE_CHECKING, TypedDict
+from typing import Any, TYPE_CHECKING, Optional, TypedDict
 
 from flask import request 
 from marshmallow import fields, Schema
@@ -44,6 +44,8 @@ from superset.models.helpers import ExploreMixin
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset import db
+from superset.daos.dashboard import DashboardDAO
+from flask_appbuilder.models.sqla.interface import SQLAInterface
 
 import duckdb, requests, sqlglot
 from requests import Session
@@ -228,7 +230,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     engine_name = "DHIS2 API Analytics"
     #session = Session()
     q_filters = []
-    
+    _model: Optional[Dashboard] = None
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
     )
@@ -299,20 +301,26 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
         print("2:",analytics_dim)
         print("3:",tables)
 
+        print("Request:",request.json)
+        
         form_data = {}
 
         form_data_json = json.loads(request.args.get('form_data','{}'))
-        print(type(form_data_json))
         #slice_id = form_data_json.get('slice_id')
         if slice_id := form_data_json.get('slice_id'):
             slc = db.session.query(Slice).filter_by(id=slice_id).one_or_none()
             print("slc:",slc)
+            charts = DashboardDAO.get_charts_for_dashboard(1)
+            print("charts:",charts)
+            result = [chart for chart in charts]
+            
             if slc:
                 form_data = slc.form_data.copy()
-                
-        print(type(form_data))
+
         print("form_data:",form_data)
-        print("filter:",form_data.get('adhoc_filters'))
+        print("filter:",form_data.get('adhoc_filters'),"FFF:::",form_data.get('filters'))
+        
+        print("XXXX:::",cls._model.json_metadata)
         if analytics_dim is not None and 'analytics' in tables:
             url_endpoint = f"https://{ analytics_url }/{ url.get('database','')}/api/analytics/rawData.json?dimension={analytics_dim}&dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&outputIdScheme=NAME&outputOrgUnitIdScheme=NAME"
             print(url_endpoint)
