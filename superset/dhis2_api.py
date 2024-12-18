@@ -231,6 +231,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     #session = Session()
     q_filters = dict()
     queries = set()
+    q = dict()
     _model: Optional[Dashboard] = None
     sqlalchemy_uri_placeholder = (
         "dhis2://username:password@your-json-endpoint.com?duckdb_path=/path/to/your_duckdb.db"
@@ -299,7 +300,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
 
         if 'analytics' in tables:
             print("4:",cls.q_filters)
-            print("2:",analytics_dim)
+            print("2:",cls.q)
             print("3:",cls.queries)
             print("Request:",request.json)
             analytics_dim = "dx:FQ2o8UBlcrS;FTRrcoaog83"
@@ -624,5 +625,11 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             elif isinstance(subnode, sqlglot.expressions.Where):
                 for condition in subnode.iter_expressions():
                     filters.append(cls.extract_filter_values(condition))
-
+        
+        for t in tables:
+            if cls.q.get(f"{t}") is None:
+                cls.q[f"{t}"] = set()
+            else:
+                _,v = cls.create_analytics_dimension(filters)
+                cls.q[f"{t}"].update(set(v))
         return filters, tables
