@@ -313,8 +313,8 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
                     if dashboard_id := form_data_json.get('dashboardId'):
                         charts = DashboardDAO.get_charts_for_dashboard(dashboard_id)
                         print("charts:",charts)
-                        dashboard_query = db.session.query(Dashboard).filter(dashboard_id)
-                        print("charts2:",dashboard_query)
+                       # dashboard_query = db.session.query(Dashboard).filter(dashboard_id)
+                       # print("charts2:",dashboard_query)
                         result = [chart for chart in charts]
                     if slc:
                         form_data = slc.form_data.copy()
