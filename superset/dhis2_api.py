@@ -344,10 +344,10 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
     @classmethod
     def get_table_filters(cls,t=set(), tables=set()):
         for table in tables:
-            if not cls.q_filters[f"{table}"]:
+            if cls.q_filters.get(f"{table}"):
                 cls.q_filters[f"{table}"] = set()
             else:
-                print(type(t),"::XX::",cls.q_filters[f"{table}"])
+                print(type(t),"::XX::",cls.q_filters.get(f"{table}"))
                 cls.q_filters[f"{table}"].update(t) 
             
     @classmethod   
@@ -358,7 +358,7 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             for filter in f:
                 if filter['op'] == 'in' and filter['key'] in ['id']:
                     dimension.extend(filter['value'] )
-                    dim_value.add(filter['value'])
+                    dim_value.update(set(filter['value']))
                 else:
                     pass
         if not dimension:
