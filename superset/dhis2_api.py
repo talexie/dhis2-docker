@@ -21,6 +21,7 @@ import re
 from datetime import datetime
 from re import Pattern
 from typing import Any, TYPE_CHECKING, Optional, TypedDict
+from functools import lru_cache
 
 from flask import request 
 from marshmallow import fields, Schema
@@ -277,8 +278,9 @@ class Dhis2ApiEngineSpec(Dhis2ApiParametersMixin,BaseEngineSpec,ExploreMixin):
             return f"{url.get('host')}"
         else:
             return f"{url.get('host')}:{ port }"
-        
+       
     @classmethod
+    @lru_cache
     def execute(  # pylint: disable=unused-argument
         cls,
         cursor: Any,
