@@ -13,13 +13,13 @@ jobs:
   buildDhis2Versions:
     strategy:
       matrix: 
-        minor_version: ['41.2.0']
-        major_version: ['41']
-        tomcat_version: ['9.0.96']
+        minor_version: ['41.3.1','42.0.0']
+        major_version: ['41','42']
+        tomcat_version: ['9.0.104']
         
     name: Build DHIS2 version ${{ matrix.major_version }} - ${{ matrix.minor_version }}
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
